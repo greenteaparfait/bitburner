@@ -112,7 +112,7 @@ export async function main(ns) {
     function sellHashes(ns){
         //Divide hashes by 4 and round down
         //var count = Math.trunc(currentHashes(ns)/4);
-        ns.hacknet.spendHashes("Sell for Corporation Funds", upgTarget, 1);
+        ns.hacknet.spendHashes("Sell for Money", upgTarget, 1);
         return;
     }
 
