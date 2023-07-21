@@ -364,20 +364,24 @@ function newProduct(ns, division) {
 
 function initCities(ns, division, productCity = "Sector-12") {
 	for (const city of cities) {
+
+		var unhired_employees = ns.corporation.getOffice(division, city).remainingEmployees;
+
 		ns.tprint("line 358, Expand " + division + " to City " + city);
-		if (!(division.cities.includes(city))) {
+		if (!cities.includes(city)){
 			ns.corporation.expandCity(division, city);
 			ns.corporation.purchaseWarehouse(division, city);
-		}
-
-		//ns.corporation.setSmartSupply(division.name, city, true); // does not work anymore, bug?
+			//ns.corporation.setSmartSupply(division.name, city, true); // does not work anymore, bug?
+		};
 
 		if (city != productCity) {
 			// setup employees
 			for (let i = 0; i < 3; i++) {
 				ns.corporation.hireEmployee(division, city);
 			}
-			ns.corporation.setAutoJobAssignment(division, city, "Research & Development", 3);
+			if ( unhired_employees >= 3) {
+				ns.corporation.setAutoJobAssignment(division, city, "Research & Development", 3);
+			};
 		}
 		else {
 			const warehouseUpgrades = 3;
@@ -390,10 +394,16 @@ function initCities(ns, division, productCity = "Sector-12") {
 			ns.corporation.upgradeOfficeSize(division, productCity, newEmployees);
 			for (let i = 0; i < newEmployees + 3; i++) {
 				ns.corporation.hireEmployee(division, productCity);
-			}
-			ns.corporation.setAutoJobAssignment(division, productCity, "Operations", 4);
-			ns.corporation.setAutoJobAssignment(division, productCity, "Engineer", 6);
-			ns.corporation.setAutoJobAssignment(division, productCity, "Management", 2);
+			};
+			if ( unhired_employees >= 4) {
+				ns.corporation.setAutoJobAssignment(division, productCity, "Operations", 4);
+			};
+			if ( unhired_employees >= 6) {
+				ns.corporation.setAutoJobAssignment(division, productCity, "Engineer", 6);
+			};
+			if ( unhired_employees >= 2) {
+				ns.corporation.setAutoJobAssignment(division, productCity, "Management", 2);
+			};
 		}
 		const warehouseUpgrades = 3;
 		for (let i = 0; i < warehouseUpgrades; i++) {
