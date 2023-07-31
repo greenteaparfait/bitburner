@@ -8,7 +8,7 @@ export async function main(ns) {
  	var portHandle = ns.getPortHandle(port_number);
     portHandle.clear();
 
-	var threads = 200;
+	var threads = 20;
 	var targetServ = home_server;
 	var rootServ = home_server;
 	var serverList = [];

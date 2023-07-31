@@ -14,7 +14,7 @@ export async function main(ns) {
     // function myMoney(ns) : amount of money to always keep and not pay for anything
     const KEEPSAKE = 1e6;
     const SLEEP_TIME = 100;	// amount of time between updates in ms
-    const MAX_NODES = 16;		// only needed for 'done' to end this script
+    const MAX_NODES = 4;		// only needed for 'done' to end this script
 
     const hacknet = ns.hacknet;
 
@@ -30,9 +30,9 @@ export async function main(ns) {
     // During a 'first run' we want only enough to enable joining Netburners-Faction
     // regardless of money already earned from the hacknet-servers
     //const MAX_NODES = 4;  // 4 nodes to keep the investment down
-    const MAX_LEVEL = 75; // 25x4=100
-    const MAX_RAM   = 128;  //  2x4=  8
-    const MAX_CORES = 8;  //  1x4=  4
+    const MAX_LEVEL = 25; // 25x4=100
+    const MAX_RAM   = 64;  //  2x4=  8
+    const MAX_CORES = 4;  //  1x4=  4
 
     // Change based on the comment possible
 
