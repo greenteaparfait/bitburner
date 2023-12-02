@@ -16,12 +16,44 @@ export async function main(ns) {
 		//initialCorpUpgrade(ns);
 		initCities(ns, corp.divisions[0]);
 	}
+
+	if(!ns.corporation.hasUnlock("Office API")) {
+		ns.corporation.purchaseUnlock("Office API");
+	};
+	if(!ns.corporation.hasUnlock("Export")) {
+		ns.corporation.purchaseUnlock("Export");
+	};
+	if(!ns.corporation.hasUnlock("Smart Supply")) {
+		ns.corporation.purchaseUnlock("Smart Supply");
+	};
+	if(!ns.corporation.hasUnlock("Market Research - Demand")) {
+		ns.corporation.purchaseUnlock("Market Research - Demand");
+	};
+	if(!ns.corporation.hasUnlock("Market Data - Competition")) {
+		ns.corporation.purchaseUnlock("Market Data - Competition");
+	};
+	if(!ns.corporation.hasUnlock("VeChain")) {
+		ns.corporation.purchaseUnlock("VeChain");
+	};
+	/*
+	if(!ns.corporation.hasUnlock("Shady Accounting")) {
+		ns.corporation.purchaseUnlock("Shady Accounting");
+	};
+	if(!ns.corporation.hasUnlock("Government Partnership")) {
+		ns.corporation.purchaseUnlock("Government Partnership");
+	};
+	*/
+	if(!ns.corporation.hasUnlock("Warehouse API")) {
+		ns.corporation.purchaseUnlock("Warehouse API");
+	};
+
 	initCities(ns, corp.divisions[0]);
 
 	while (true) {
 		corp = ns.corporation.getCorporation();
 
 		for (const division of corp.divisions.reverse()) {
+
 			ns.tprint("line 24, Corp: Warehouse Upgrade");
             upgradeWarehouses(ns, division);
 
@@ -38,7 +70,7 @@ export async function main(ns) {
 			doResearch(ns, division);
 		}
 		if (corp.divisions.length < 2 && corp.numShares == corp.totalShares) {
-			if (corp.divisions[0].products.length > 2) {
+			if (corp.divisions[0].productNumbers.length > 2) {
 				trickInvest(ns, corp.divisions[0]);
 			}
 		}
@@ -276,17 +308,20 @@ function doResearch(ns, division) {
 
 function newProduct(ns, division) {
 
-	var productNumbers = [0];
+	var productNumbers = division.productNumbers;
+	var numProducts = 3;
+	var newProductNumber = 0;
 
 	if (Array.isArray(division.products)) {
 		ns.tprint("line 273, Products: " + division.products);
 
 		for (var product of division.products) {
 			ns.tprint("line 276: product of division.products = " + product);
+			// if a product is still under development, pass it
 			if (ns.corporation.getProduct(division, product).developmentProgress < 100) {
 				ns.tprint(division + " Product development progress: " + ns.corporation.getProduct(division, product).developmentProgress.toFixed(1) + "%");
 				return false;
-			}
+			}  // if a product development is done, sell the product
 			else {
 				productNumbers.push(product.charAt(product.length - 1));
 				ns.tprint("line 283: productNumbers = " + productNumbers);
@@ -309,7 +344,6 @@ function newProduct(ns, division) {
 		ns.tprint("line 300, division.products  does not exist")
 	};
 
-	var numProducts = 3;
 	// amount of products which can be sold in parallel is 3; can be upgraded
 	if (ns.corporation.hasResearched(division, "uPgrade: Capacity.I")) {
 		numProducts++;
@@ -318,14 +352,13 @@ function newProduct(ns, division) {
 		}
 	}
 
+	//discontinue the oldest product if over max amount of products
 	if (productNumbers.length >= numProducts) {
-		//discontinue the oldest product if over max amount of products
 		ns.tprint("line 314, " + division + " Discontinue product " + division.products[0]);
 		ns.corporation.discontinueProduct(division, division.products[0]);
 	}
 
 	// get the product number of the latest product and increase it by 1 for the mext product. Product names must be unique.
-	var newProductNumber = 0;
 	ns.tprint("line 320: division.products = " + division.products)
 	if (productNumbers.length > 0) {
 		ns.tprint("line 322: productNubmers = " + productNumbers);
@@ -355,7 +388,6 @@ function newProduct(ns, division) {
 		ns.tprint("line 346, " + newProductName);
 		if ( newProductNumber > productNumbers + 1 ) {
 			ns.tprint("Start new product development " + newProductName);
-			//if (ns.corporation.division )
 			ns.corporation.makeProduct(division, "Sector-12", newProductName, productInvest, productInvest);
 		};
 	}
@@ -363,55 +395,57 @@ function newProduct(ns, division) {
 }
 
 function initCities(ns, division, productCity = "Sector-12") {
+
 	for (const city of cities) {
-
-		var unhired_employees = ns.corporation.getOffice(division, city).remainingEmployees;
-
-		ns.tprint("line 358, Expand " + division + " to City " + city);
-		if (!cities.includes(city)){
-			ns.corporation.expandCity(division, city);
-			ns.corporation.purchaseWarehouse(division, city);
+		if (city == "Sector-12") {
+			ns.tprint("line 358, Expand " + division + " to City " + city);
+			
+			//ns.corporation.expandCity(division, city);
+			//ns.corporation.purchaseWarehouse(division, city);
 			//ns.corporation.setSmartSupply(division.name, city, true); // does not work anymore, bug?
-		};
+			
+			var unhired_employees = ns.corporation.getOffice(division, city).remainingEmployees;
 
-		if (city != productCity) {
-			// setup employees
-			for (let i = 0; i < 3; i++) {
-				ns.corporation.hireEmployee(division, city);
+			if (city != productCity) {
+				// setup employees
+				for (let i = 0; i < 3; i++) {
+					ns.corporation.hireEmployee(division, city);
+				}
+				if ( unhired_employees >= 3) {
+					ns.corporation.setAutoJobAssignment(division, city, "Research & Development", 3);
+				};
 			}
-			if ( unhired_employees >= 3) {
-				ns.corporation.setAutoJobAssignment(division, city, "Research & Development", 3);
-			};
-		}
-		else {
+			else {
+				const warehouseUpgrades = 3;
+				// get a bigger warehouse in the product city. we can produce and sell more here
+				for (let i = 0; i < warehouseUpgrades; i++) {
+					ns.corporation.upgradeWarehouse(division, city);
+				}
+				// get more employees in the main product development city
+				const newEmployees = 9;
+				ns.corporation.upgradeOfficeSize(division, productCity, newEmployees);
+				for (let i = 0; i < newEmployees + 3; i++) {
+					ns.corporation.hireEmployee(division, productCity);
+				};
+				if ( unhired_employees >= 4) {
+					ns.corporation.setAutoJobAssignment(division, productCity, "Operations", 4);
+				};
+				if ( unhired_employees >= 6) {
+					ns.corporation.setAutoJobAssignment(division, productCity, "Engineer", 6);
+				};
+				if ( unhired_employees >= 2) {
+					ns.corporation.setAutoJobAssignment(division, productCity, "Management", 2);
+				};
+			}
 			const warehouseUpgrades = 3;
-			// get a bigger warehouse in the product city. we can produce and sell more here
 			for (let i = 0; i < warehouseUpgrades; i++) {
 				ns.corporation.upgradeWarehouse(division, city);
 			}
-			// get more employees in the main product development city
-			const newEmployees = 9;
-			ns.corporation.upgradeOfficeSize(division, productCity, newEmployees);
-			for (let i = 0; i < newEmployees + 3; i++) {
-				ns.corporation.hireEmployee(division, productCity);
-			};
-			if ( unhired_employees >= 4) {
-				ns.corporation.setAutoJobAssignment(division, productCity, "Operations", 4);
-			};
-			if ( unhired_employees >= 6) {
-				ns.corporation.setAutoJobAssignment(division, productCity, "Engineer", 6);
-			};
-			if ( unhired_employees >= 2) {
-				ns.corporation.setAutoJobAssignment(division, productCity, "Management", 2);
-			};
-		}
-		const warehouseUpgrades = 3;
-		for (let i = 0; i < warehouseUpgrades; i++) {
-			ns.corporation.upgradeWarehouse(division, city);
+		} else {
+
 		}
 	}
-	ns.tprint("line 398, initCities: makeProduct")
-	ns.corporation.makeProduct(division, productCity, "Product-0", "1e3", "1e3");
+	division.productNumbers = [0];
 }
 
 async function initialCorpUpgrade(ns) {
