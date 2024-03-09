@@ -9,7 +9,7 @@ export async function main(ns) {
     portHandle.clear();
 
 <<<<<<< HEAD
-	var threads = 1000;
+	var threads = 10000;
 =======
 	var threads = 100;
 >>>>>>> 30e9d1ebaecaae912b23a8df56b72db9f28aac44
