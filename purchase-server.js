@@ -4,7 +4,7 @@ export async function main(ns) {
     // Usage: run purchase-server.js {number of server to purchase}, if omitted it is set to 15
 	// placeholder for purchased server
 	var hostname = "";
-	var maxServer = (ns.args[0] || 15);
+	var maxServer = (ns.args[0] || 20);
 	const name = "pserv-";
 
 	var availableMoney = ns.getServerMoneyAvailable("home");

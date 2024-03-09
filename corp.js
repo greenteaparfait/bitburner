@@ -16,9 +16,52 @@ export async function main(ns) {
 		//initialCorpUpgrade(ns);
 		//initCities(ns, corp.divisions[0]);
 	}
+<<<<<<< HEAD
 
 	// temporarily commnented
 	//initCities(ns, corp.divisions[0]);
+=======
+
+	if(!ns.corporation.hasUnlock("Office API")) {
+		ns.corporation.purchaseUnlock("Office API");
+	};
+	if(!ns.corporation.hasUnlock("Export")) {
+		ns.corporation.purchaseUnlock("Export");
+	};
+	if(!ns.corporation.hasUnlock("Smart Supply")) {
+		ns.corporation.purchaseUnlock("Smart Supply");
+	};
+	if(!ns.corporation.hasUnlock("Market Research - Demand")) {
+		ns.corporation.purchaseUnlock("Market Research - Demand");
+	};
+	if(!ns.corporation.hasUnlock("Market Data - Competition")) {
+		ns.corporation.purchaseUnlock("Market Data - Competition");
+	};
+	if(!ns.corporation.hasUnlock("VeChain")) {
+		ns.corporation.purchaseUnlock("VeChain");
+	};
+	/*
+	if(!ns.corporation.hasUnlock("Shady Accounting")) {
+		ns.corporation.purchaseUnlock("Shady Accounting");
+	};
+	if(!ns.corporation.hasUnlock("Government Partnership")) {
+		ns.corporation.purchaseUnlock("Government Partnership");
+	};
+	*/
+	if(!ns.corporation.hasUnlock("Warehouse API")) {
+		ns.corporation.purchaseUnlock("Warehouse API");
+	};
+
+	initCities(ns, corp.divisions[0]);
+
+	while (true) {
+		corp = ns.corporation.getCorporation();
+
+		for (const division of corp.divisions.reverse()) {
+
+			ns.tprint("line 24, Corp: Warehouse Upgrade");
+            upgradeWarehouses(ns, division);
+>>>>>>> 30e9d1ebaecaae912b23a8df56b72db9f28aac44
 
 	while (true) {	
 /*
@@ -64,10 +107,15 @@ export async function main(ns) {
 		}
 		/*
 		if (corp.divisions.length < 2 && corp.numShares == corp.totalShares) {
+<<<<<<< HEAD
 			if (corp.divisions[0].products != null) {
 				if (Object.keys(corp.divisions[0].products).length > 2) {
 					trickInvest(ns, corp.divisions[0]);
 				}
+=======
+			if (corp.divisions[0].productNumbers.length > 2) {
+				trickInvest(ns, corp.divisions[0]);
+>>>>>>> 30e9d1ebaecaae912b23a8df56b72db9f28aac44
 			}
 		}
 		*/
@@ -321,6 +369,7 @@ function newProduct(ns, division) {
 	var newProductNumber = 0;
 	var productInvest = 1e6;
 
+<<<<<<< HEAD
 	// In case this script was run again while the coporation operates already,
 	// If product-0, product-1, product-2 exist already but they are not generated through this script, renew division.products by makeProducts
 	if (division.products == null) {
@@ -333,6 +382,40 @@ function newProduct(ns, division) {
 		if ( ns.corporation.getProduct(division, "Sector-12", "product-2") != null) {
 			productNumbers.push("2")		
 		};
+=======
+	var productNumbers = division.productNumbers;
+	var numProducts = 3;
+	var newProductNumber = 0;
+
+	if (Array.isArray(division.products)) {
+		ns.tprint("line 273, Products: " + division.products);
+
+		for (var product of division.products) {
+			ns.tprint("line 276: product of division.products = " + product);
+			// if a product is still under development, pass it
+			if (ns.corporation.getProduct(division, product).developmentProgress < 100) {
+				ns.tprint(division + " Product development progress: " + ns.corporation.getProduct(division, product).developmentProgress.toFixed(1) + "%");
+				return false;
+			}  // if a product development is done, sell the product
+			else {
+				productNumbers.push(product.charAt(product.length - 1));
+				ns.tprint("line 283: productNumbers = " + productNumbers);
+				ns.tprint("line 284: product = " + product);
+				ns.tprint("line 285: product.length = " + product.length);
+				ns.tprint("line 286: product.charAt(product.length -1) = " + product.charAt(product.length - 1));
+				ns.tprint("line 287: product numbers = " + productNumbers);
+				// initial sell value if nothing is defined yet is 0
+				if (ns.corporation.getProduct(division, product).sCost == 0) {
+					ns.tprint("line 290, " + division + " Start selling product " + product);
+					ns.corporation.sellProduct(division, "Sector-12", product, "MAX", "MP", true);
+					if (ns.corporation.hasResearched(division, "Market-TA.II")) {
+						ns.corporation.setProductMarketTA1(division, product, true);
+						ns.corporation.setProductMarketTA2(division, product, true);
+					}
+				}
+			}
+		}
+>>>>>>> 30e9d1ebaecaae912b23a8df56b72db9f28aac44
 	} else {
 	};
 
@@ -344,6 +427,7 @@ function newProduct(ns, division) {
 		}
 	}
 
+<<<<<<< HEAD
 	//* temperarily commented *//
 	//discontinue the oldest product if over max amount of products
 	//if (productNumbers.length >= maxNumProducts) {
@@ -352,6 +436,16 @@ function newProduct(ns, division) {
 	//}
 
 	// get the product number of the latest product and increase it by 1 for the mext product. Product names must be unique.
+=======
+	//discontinue the oldest product if over max amount of products
+	if (productNumbers.length >= numProducts) {
+		ns.tprint("line 314, " + division + " Discontinue product " + division.products[0]);
+		ns.corporation.discontinueProduct(division, division.products[0]);
+	}
+
+	// get the product number of the latest product and increase it by 1 for the mext product. Product names must be unique.
+	ns.tprint("line 320: division.products = " + division.products)
+>>>>>>> 30e9d1ebaecaae912b23a8df56b72db9f28aac44
 	if (productNumbers.length > 0) {
 		ns.print("line 354: productNubmers = " + productNumbers);
 		newProductNumber = parseInt(productNumbers[productNumbers.length - 1]) + 1;
@@ -375,6 +469,7 @@ function newProduct(ns, division) {
 		}
 	}
 
+<<<<<<< HEAD
 	ns.print("line 394, " + productNumbers.length);
 	if (productNumbers.length < maxNumProducts) {
 		ns.print("line 378, Start new product development " + newProductName);
@@ -401,6 +496,15 @@ function newProduct(ns, division) {
 				}
 			}
 		}
+=======
+	if (productNumbers.length < numProducts) {
+		ns.tprint("line 345, " + productNumbers);
+		ns.tprint("line 346, " + newProductName);
+		if ( newProductNumber > productNumbers + 1 ) {
+			ns.tprint("Start new product development " + newProductName);
+			ns.corporation.makeProduct(division, "Sector-12", newProductName, productInvest, productInvest);
+		};
+>>>>>>> 30e9d1ebaecaae912b23a8df56b72db9f28aac44
 	}
 	
 
@@ -409,12 +513,21 @@ function newProduct(ns, division) {
 function initCities(ns, division, productCity = "Sector-12") {
 
 	for (const city of cities) {
+<<<<<<< HEAD
 		if (city != "Sector-12") {
 
 			ns.print("line 410, Expand " + division + " to City " + city);
 			ns.corporation.expandCity(division, city);
 			ns.corporation.purchaseWarehouse(division, city);
 			ns.corporation.setSmartSupply(division, city, true); // does not work anymore, bug?
+=======
+		if (city == "Sector-12") {
+			ns.tprint("line 358, Expand " + division + " to City " + city);
+			
+			//ns.corporation.expandCity(division, city);
+			//ns.corporation.purchaseWarehouse(division, city);
+			//ns.corporation.setSmartSupply(division.name, city, true); // does not work anymore, bug?
+>>>>>>> 30e9d1ebaecaae912b23a8df56b72db9f28aac44
 			
 			var unhired_employees = ns.corporation.getOffice(division, city).remainingEmployees;
 
@@ -457,7 +570,11 @@ function initCities(ns, division, productCity = "Sector-12") {
 
 		}
 	}
+<<<<<<< HEAD
 	//division.products = null;
+=======
+	division.productNumbers = [0];
+>>>>>>> 30e9d1ebaecaae912b23a8df56b72db9f28aac44
 }
 
 async function initialCorpUpgrade(ns) {

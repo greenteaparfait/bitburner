@@ -2,8 +2,11 @@
 
 export async function main(ns) {
 
-	var upgName = ns.args[0] || "SellForMoney";
-	var upgTarget = ns.args[1] || "MustFill";
+  var numOfNodes = ns.args[0] || 24
+	var upgName = ns.args[1] || "SellForMoney";
+	var upgTarget = ns.args[2] || "MustFill";
+
+	var costNextPart = 0
 
 	// *********
 	// constants
@@ -14,25 +17,13 @@ export async function main(ns) {
 	// function myMoney(ns) : amount of money to always keep and not pay for anything
 	const KEEPSAKE = 1e6;
 	const SLEEP_TIME = 100;	// amount of time between updates in ms
-	const MAX_NODES = 8;	// only needed for 'done' to end this script
-
 	const hacknet = ns.hacknet;
 
-	// Possible to change to suit your needs
-
-	// During a 'first run' we want only enough to enable joining Netburners-Faction
-	// regardless of money already earned from the hacknet-servers
-	const FR_MAX_NODES = 4;  // 4 nodes to keep the investment down
-	const FR_MAX_LEVEL = 25; // 25x4=100
-	const FR_MAX_RAM   = 2;  //  2x4=  8
-	const FR_MAX_CORES = 1;  //  1x4=  4
-
-	// During a 'first run' we want only enough to enable joining Netburners-Faction
-	// regardless of money already earned from the hacknet-servers
-	//const MAX_NODES = 4;  // 4 nodes to keep the investment down
-	const MAX_LEVEL = 70; // 25x4=100
-	const MAX_RAM   = 126;  //  2x4=  8
-	const MAX_CORES = 8;  //  1x4=  4
+	// configuration of the hacknet for faster hash accumulation
+	const MAX_NODES = numOfNodes;	
+	const MAX_LEVEL = 100;
+	const MAX_RAM   = 1024;  
+	const MAX_CORES = 32;  
 
 	// Change based on the comment possible
 
@@ -45,7 +36,7 @@ export async function main(ns) {
 	// If we only want $ out of the Hacknet-hashes,
 	// increasing the cache is not needed.
 	// true = Upgrading Cache  -vs-  false = not Upgrading Cache
-	const UPGRADE_CACHE = true;
+	const UPGRADE_CACHE = false;
 
 	// *********
 	// functions
@@ -61,16 +52,12 @@ export async function main(ns) {
 
 	function moneyBalanceHacknet2(ns) {
 			// money balance weighted by the Reinvestment Factor
-			//ns.print("Inside moneyBlanceHacknet2: moneyEarnedHacknet = " + moneyEarnedHacknet(ns));
-			//ns.print("Inside moneyBlanceHacknet2: moneySpentHacknet = " + moneySpentHacknet(ns));
 			return ((moneyEarnedHacknet(ns) * MRF) + moneySpentHacknet(ns));
 	}
 
 	function myMoneyHacknet(ns) {
 			// since we want to limit how much money we spent
-			//ns.print("Inside myMoneyHacknet: moneyBalanceHacknet2 = " + moneyBalanceHacknet2(ns));
 			if (moneyBalanceHacknet2(ns) < 0 ) {
-					//ns.print("Inside myMoneyHacknet: myMoney = " + myMoney(ns));
 					return myMoney(ns);
 			} else if (myMoney(ns) > moneyBalanceHacknet2(ns)) {
 					return myMoney(ns);
@@ -103,7 +90,6 @@ export async function main(ns) {
 	function report(ns) {
 			// just a clear summary of things mostly also found elsewhere
 			ns.clearLog();
-			if (!doneFR(ns)) ns.print("First Run active.");
 			ns.print("Hashes available:    # ", ns.formatNumber(currentHashes(ns), 3, 1000, false));
 			ns.print("Possible from Sales: $ ", ns.formatNumber(currentHashes(ns)/4*1e6, 3, 1000, false))
 			ns.print("--------------------------------");
@@ -126,7 +112,7 @@ export async function main(ns) {
 
 	function spendForBladerunnerRank(ns) {
 		  //ns.print("Inside exchange for bladeburner rank: ")
-			ns.hacknet.spendHashes("Exchange for BladeburnerRank", upgTarget, 1);
+			ns.hacknet.spendHashes("Exchange for Bladeburner Rank", upgTarget, 1);
 	}
 
 	function increaseMaxMoney(ns) {
@@ -134,61 +120,9 @@ export async function main(ns) {
 			ns.hacknet.spendHashes("Increase Maximum Money", upgTarget, 1);
 	}
 
-	function reduceMinimumSecurity(ns) {
-			ns.hacknet.spendHashes("Reduce Minimum Security", upgTarget, 1);
-	}
-
 	function sellForCorporationFunds(ns) {
 			//ns.print("Inside sell for corporation funds: ")
 			ns.hacknet.spendHashes("Sell for Corporation Funds", upgTarget, 1);
-	}
-
-	function upgradeFR(ns) {
-			// upgrades during 'first run'
-			// - with the original myMoney
-			// and without upgrading hash-cache capacity
-			for (var i = 0; i < currentNodes(ns); i++) {
-			if ((myMoney(ns) > hacknet.getLevelUpgradeCost(i, 1)) &&
-					(hacknet.getNodeStats(i).level < FR_MAX_LEVEL)) {
-					hacknet.upgradeLevel(i, 1);
-			}
-			if ((myMoney(ns) > hacknet.getRamUpgradeCost(i, 1)) &&
-					(hacknet.getNodeStats(i).ram < FR_MAX_RAM)) {
-					hacknet.upgradeRam(i, 1);
-			}
-			if ((myMoney(ns) > hacknet.getCoreUpgradeCost(i, 1)) &&
-					(hacknet.getNodeStats(i).cores < FR_MAX_CORES)) {
-					hacknet.upgradeCore(i, 1);
-			}
-			}
-			if ((myMoney(ns) > hacknet.getPurchaseNodeCost()) &&
-					(currentNodes(ns) < FR_MAX_NODES)) {
-					hacknet.purchaseNode();
-			}
-			//sellHashes(ns);
-			report(ns);
-			return;
-	}
-
-	function doneFR(ns) {
-			// simple logic to look out if the 'first run' is still currently active
-			let ind = ((FR_MAX_NODES -1) >= currentNodes(ns) ? (currentNodes(ns) -1) : (FR_MAX_NODES -1));
-			//ns.print("Inside doneFR: ind = " + ind)
-			//ns.print("Inside doneFR: currentNodes = " + currentNodes(ns))
-			if (currentNodes(ns) == 0) return false;
-			//ns.print("Inside doneFR: node level = " + hacknet.getNodeStats(ind).level)
-			//ns.print("Inside doneFR: node ram = " + hacknet.getNodeStats(ind).ram)
-			//ns.print("Inside doneFR: node cores = " + hacknet.getNodeStats(ind).cores)
-			if ((currentNodes(ns) >= ind) &&
-					(hacknet.getNodeStats(ind).level >= FR_MAX_LEVEL) &&
-					(hacknet.getNodeStats(ind).ram >= FR_MAX_RAM) &&
-					(hacknet.getNodeStats(ind).cores >= FR_MAX_CORES)){
-					//ns.print("Inside doneFR: true");
-					return true;
-			} else {
-					//ns.print("Inside doneFR: false");
-					return false;
-			}
 	}
 
 	function findCULevel(ns) {
@@ -265,23 +199,35 @@ export async function main(ns) {
 
 	function upgradeReport(ns) {
 			// returns a printable string as an upgrade to report
-			// would produce errors during 'first run'
 			let urs = "";
 			let tar2 = findCheapest(ns);
-			if (tar2 == "n") urs = ("Next Upgrade Node for $ " + ns.formatNumber(hacknet.getPurchaseNodeCost(), 3, 1000, false));
-			if (tar2 == "l") urs = ("Next Upgrade Level for $ " + ns.formatNumber(hacknet.getLevelUpgradeCost(findCULevel(ns), 1), 3, 1000, false));
-			if (tar2 == "r") urs = ("Next Upgrade RAM for $ " + ns.formatNumber(hacknet.getRamUpgradeCost(findCURam(ns), 1), 3, 1000, false));
-			if (tar2 == "c") urs = ("Next Upgrade Core for $ " + ns.formatNumber(hacknet.getCoreUpgradeCost(findCUCore(ns), 1), 3, 1000, false));
-			if (tar2 == "ca") urs = ("Next Upgrade Cache for $ " + ns.formatNumber(hacknet.getCacheUpgradeCost(findCUCache(ns), 1), 3, 1000, false));
+			if (tar2 == "n") {
+				urs = ("Next Upgrade Node for $ " + ns.formatNumber(hacknet.getPurchaseNodeCost(), 3, 1000, false));
+				costNextPart = hacknet.getPurchaseNodeCost();
+			}
+			if (tar2 == "l") {
+				urs = ("Next Upgrade Level for $ " + ns.formatNumber(hacknet.getLevelUpgradeCost(findCULevel(ns), 1), 3, 1000, false));
+				costNextPart = hacknet.getLevelUpgradeCost(findCULevel(ns), 1);
+			}
+			if (tar2 == "r") {
+				urs = ("Next Upgrade RAM for $ " + ns.formatNumber(hacknet.getRamUpgradeCost(findCURam(ns), 1), 3, 1000, false));
+				costNextPart = hacknet.getRamUpgradeCost(findCURam(ns), 1);
+			}
+			if (tar2 == "c") {
+				urs = ("Next Upgrade Core for $ " + ns.formatNumber(hacknet.getCoreUpgradeCost(findCUCore(ns), 1), 3, 1000, false));
+				costNextPart = hacknet.getCoreUpgradeCost(findCUCore(ns), 1);
+			}
+			if (tar2 == "ca") {
+				urs = ("Next Upgrade Cache for $ " + ns.formatNumber(hacknet.getCacheUpgradeCost(findCUCache(ns), 1), 3, 1000, false));
+				costNextPart = hacknet.getCacheUpgradeCost(findCUCache(ns), 1);
+			}
 			return urs;
 	}
 
 	function upgrade(ns) {
-			//ns.print("Inside upgrade: ");
+
 			let tar = findCheapest(ns);
 			
-			//ns.print("Inside upgrade: tar = " + tar);
-			//ns.print("Inside upgrade: myMoneyHacknet = " + myMoneyHacknet(ns));
 			if (tar == "n" && 
 					myMoneyHacknet(ns) > hacknet.getPurchaseNodeCost()) {
 					hacknet.purchaseNode();
@@ -298,10 +244,12 @@ export async function main(ns) {
 							myMoneyHacknet(ns) > hacknet.getCacheUpgradeCost(findCUCache(ns), 1)) {
 					hacknet.upgradeCache(findCUCache(ns), 1);
 			}
-			//sellHashes(ns);
-			report(ns);
-			ns.print(upgradeReport(ns));
-			return;
+			if ( myMoney(ns) < costNextPart) {
+				// sellHashes(ns);
+			}
+			report(ns)
+			ns.print(upgradeReport(ns))
+			return
 	}
 
 	function done(ns) {
@@ -313,7 +261,7 @@ export async function main(ns) {
 				// case is the 'normal' way to end this script
 				//ns.tprint("All Nodes bought and completly upgraded!");
 				return true;
-			} else if ((MRF == 0) && (doneFR(ns))) {
+			} else if (MRF == 0) {
 				// case with only enough hacknet capacity for Netburners faction
 				return true;
 			} else return false;	// default case - keep running the script
@@ -339,54 +287,36 @@ export async function main(ns) {
 
 	while(!done(ns)) {
 		let nodes = ((MAX_NODES -1) >= currentNodes(ns) ? (currentNodes(ns) -1) : (MAX_NODES -1));
-		//ns.print("Inside hacknet-manager: nodes = ", nodes)
-		
-		if (!doneFR(ns)) {
-				//ns.print("Inside hacknet-manager: doneFR = false")
-				upgradeFR(ns)   // Do the first run upgrade and sell hashes
-		} else {
-				//ns.print("Inside hacknet-manager: doneFR = true")
-				//ns.print("Inside hacknet-manager: nodes = ", nodes)
-				//ns.print("Inside hacknet-manager: level = ", hacknet.getNodeStats(nodes).level )
-				//ns.print("Inside hacknet-manager: ram = ", hacknet.getNodeStats(nodes).ram )
-				//ns.print("Inside hacknet-manager: cores = ", hacknet.getNodeStats(nodes).cores )
-				// Do the upgrade until maximum amounts of cores, rams, levels are achieved
-				if (
-					(nodes < MAX_NODES -1) ||
-					(hacknet.getNodeStats(nodes).level < MAX_LEVEL) ||
-					(hacknet.getNodeStats(nodes).ram < MAX_RAM) ||
-					(hacknet.getNodeStats(nodes).cores < MAX_CORES))
-				{
-					//ns.print("Inside hacknet-manager: upgrade");
-					upgrade(ns);
-                    if (upgName == "Sell for Money") {
-					    sellHashes(ns);
-                    };
-				} else {
-					//ns.print("Inside hacknet-manager: upgrade done");
-				  // Afer arrving the goal, sell the hashes
-					switch (upgName) {
-						case "SellForMoney":
-							sellHashes(ns);
-						case "ExchangeForBladeburnerRank":
-							spendForBladerunnerRank(ns);
-						case "IncreaseMaximumMoney":
-							increaseMaxMoney(ns);
-						case "ReduceMinimumSecurity":
-							reduceMinimumSecurity(ns);	
-						case "SellForCorporationFunds":
-							sellForCorporationFunds(ns);
-						//default:
-						//	sellHashes(ns);
-					}
-						
-				}
-		}
-		//ns.print("Inside hacknet-manager: done ? = ", done(ns))
-		await ns.sleep(SLEEP_TIME);
-	}
 
-	//ns.print("Inside hacknet-manager: out of while loop ")
+		// Do the upgrade until maximum amounts of cores, rams, levels are achieved
+		if (
+			(nodes < MAX_NODES -1) ||
+			(hacknet.getNodeStats(nodes).level < MAX_LEVEL) ||
+			(hacknet.getNodeStats(nodes).ram < MAX_RAM) ||
+			(hacknet.getNodeStats(nodes).cores < MAX_CORES))
+		{
+			upgrade(ns);
+			//sellHashes(ns);
+		} else {
+			// Afer arrving the goal, sell the hashes
+			switch (upgName) {
+				case "SellForMoney":
+					sellHashes(ns);
+				case "ExchangeForBladeburnerRank":
+					spendForBladerunnerRank(ns);
+				case "IncreaseMaximumMoney":
+					increaseMaxMoney(ns);
+				case "SellForCorporationFunds":
+					sellForCorporationFunds(ns);
+				//default:
+				//	sellHashes(ns);
+			}
+				
+		}
+
+		await ns.sleep(SLEEP_TIME);
+
+	}
 
 }
 
