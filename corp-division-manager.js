@@ -5,7 +5,7 @@ const DEFAULT_MAX_PRODUCTS = 3
 const MIN_WH_UPGRADES = 5;
 
 const MATERIALS = [
-	//"Energy",
+	"Plants",
 	"Hardware",
 	"Robots",
 	"AI Cores",
@@ -44,6 +44,8 @@ export async function main(ns) {
 	const reqEmployees = ns.args[2];
 	const prodBudget = ns.args[3];
 	const minWarehouseCapacity = ns.args[4] || DEFAULT_WH_CAPACITY;
+	var buyRatio = 1;  // default value for material buy
+	var manpower = 10; // default office size
 
 	if (!industry || !divisionName || !reqEmployees || !prodBudget) {
 		ns.tprint("ERROR Insufficient arguments\nUsage: run corp-division-manager.js <industry> <divisionName> <reqEmployees> <prodBudget> [<minWarehouseCapacity>]");
@@ -145,16 +147,56 @@ export async function main(ns) {
 		}
 	}
 
+	const buyMaterials = (divisionName, cityName) => {
+		const division = corp.getDivision(divisionName);
+		const warehouse = corp.getWarehouse(divisionName, cityName)
+		const warehouseSize = warehouse.size;
+		const buyLimit = Math.round(warehouseSize*0.1);  // 10% of warehouse size
+		const buyLimit_plant = Math.round(warehouseSize*0.7);  // 90% of warehouse size
+		
+		for (let prodId of division.products) {
+			const rawProd = corp.getProduct(divisionName, "Sector-12", prodId);
+			if ( rawProd.actualSellAmount >= rawProd.productionAmount) {
+				buyRatio++;
+				manpower++;
+				ns.run(corpScripts.recruiter, 1, "Tobacco", cityName, manpower);
+			} else {
+				buyRatio--;
+			};
+			if (buyRatio < 0) {
+				buyRatio = 0;
+			};
+		};
+		
+		if (corp.hasWarehouse(divisionName, cityName)) {
+			for (const material of MATERIALS) {
+				if (material == "Plants") {
+					if (warehouse.sizeUsed < buyLimit_plant) {
+						corp.buyMaterial(divisionName, cityName, material, buyRatio, 'MP');
+					} else {
+						//corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
+					};
+				} else {
+					if (warehouse.sizeUsed < buyLimit) {
+						corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+					} else {
+						//corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
+					};
+				};
+			}
+		}
+	}
+
 	const ensureMarketTAEnabled = (divisionName, cityName) => {
 		const division = corp.getDivision(divisionName);
-
+/*
 		if (corp.hasWarehouse(divisionName, cityName)) {
 			// Make sure that we're selling all materials so we don't fill warehouse
 			for (const material of MATERIALS) {
 				corp.sellMaterial(divisionName, cityName, material, 'MAX', 'MP');
 			}
 		}
-
+*/
 		if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
 			for (const material of MATERIALS) {
 				corp.setMaterialMarketTA1(divisionName, cityName, material, true);
@@ -212,9 +254,11 @@ export async function main(ns) {
 			if (shouldUpgradeCity(divisionName, city)) {
 				await upgradeCity(divisionName, city);
 			}
-			enableSmartSupply(divisionName, city);
+			//buyMaterials(divisionName, city);
+			//enableSmartSupply(divisionName, city);
 			ensureMarketTAEnabled(divisionName, city);
-		}
+			buyMaterials(divisionName, city);
+		};
 
 		const unownedCities = getUnownedCities(division);
 		if (unownedCities.length > 0) {

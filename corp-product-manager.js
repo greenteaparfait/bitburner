@@ -38,33 +38,33 @@ export async function main(ns) {
 		const division = corp.getDivision(divisionName);
 		ns.print("Division name: " + divisionName);
 		ns.print("products: " + division.products);
-/*
+
 		for (let prodId of division.products) {
 			const rawProd = corp.getProduct(divisionName, "Sector-12", prodId);
 			ns.print("For " + prodId);
 			ns.print("	actual sell amount = " + rawProd.actualSellAmount);
-			ns.print("	advertising investment = " + rawProd.advertisingInvestment);
-			ns.print("	competition = " + rawProd.competition);
-			ns.print("	demand = " + rawProd.demand);
-			ns.print("	design investment = " + rawProd.designInvestment);
+			//ns.print("	advertising investment = " + rawProd.advertisingInvestment);
+			//ns.print("	competition = " + rawProd.competition);
+			//ns.print("	demand = " + rawProd.demand);
+			//ns.print("	design investment = " + rawProd.designInvestment);
 			ns.print("	desired sell amount = " + rawProd.desiredSellAmount);
-			ns.print("	desired sell price = " + rawProd.desiredSellPrice);
-			ns.print("	development progress = " + rawProd.developmentProgress);
-			ns.print("	effective rating = " + rawProd.effectiveRating);
-			ns.print("	name = " + rawProd.name);
+			//ns.print("	desired sell price = " + rawProd.desiredSellPrice);
+			//ns.print("	development progress = " + rawProd.developmentProgress);
+			//ns.print("	effective rating = " + rawProd.effectiveRating);
+			//ns.print("	name = " + rawProd.name);
 			ns.print("	production amount = " + rawProd.productionAmount);
-			ns.print("	production cost = " + rawProd.productionCost);
-			ns.print("	rating = " + rawProd.rating);
-			ns.print("	size = " + rawProd.size);
-			ns.print("	stats quality = " + rawProd.stats.quality);
-			ns.print("	stats performance = " + rawProd.stats.performance);
-			ns.print("	stats durability = " + rawProd.stats.durability);
-			ns.print("	stats reliability = " + rawProd.stats.reliability);
-			ns.print("	stats aesthetics = " + rawProd.stats.aesthetics);
-			ns.print("	stats features = " + rawProd.stats.features);
-			ns.print("	stored = " + rawProd.stored);
+			//ns.print("	production cost = " + rawProd.productionCost);
+			//ns.print("	rating = " + rawProd.rating);
+			//ns.print("	size = " + rawProd.size);
+			//ns.print("	stats quality = " + rawProd.stats.quality);
+			//ns.print("	stats performance = " + rawProd.stats.performance);
+			//ns.print("	stats durability = " + rawProd.stats.durability);
+			//ns.print("	stats reliability = " + rawProd.stats.reliability);
+			//ns.print("	stats aesthetics = " + rawProd.stats.aesthetics);
+			//ns.print("	stats features = " + rawProd.stats.features);
+			//ns.print("	stored = " + rawProd.stored);
 		};
-*/
+
 /*		
 		let productsArray = [];
 		ns.print("line 41,");
