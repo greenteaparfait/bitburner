@@ -173,14 +173,18 @@ export async function main(ns) {
 				if (material == "Plants") {
 					if (warehouse.sizeUsed < buyLimit_plant) {
 						corp.buyMaterial(divisionName, cityName, material, buyRatio, 'MP');
+						corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
 					} else {
-						//corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
+						corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+						corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
 					};
 				} else {
 					if (warehouse.sizeUsed < buyLimit) {
 						corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+						corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
 					} else {
-						//corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
+						corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+						corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
 					};
 				};
 			}
