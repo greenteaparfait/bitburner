@@ -151,7 +151,7 @@ export async function main(ns) {
 		const division = corp.getDivision(divisionName);
 		const warehouse = corp.getWarehouse(divisionName, cityName)
 		const warehouseSize = warehouse.size;
-		const buyLimit = Math.round(warehouseSize*0.1);  // 10% of warehouse size
+		const buyLimit = Math.round(warehouseSize*0.7);  // 10% of warehouse size
 		const buyLimit_plant = Math.round(warehouseSize*0.7);  // 90% of warehouse size
 		
 		for (let prodId of division.products) {
