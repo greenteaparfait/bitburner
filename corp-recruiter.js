@@ -75,24 +75,24 @@ export async function main(ns) {
 		for (const [job, amount] of ascEmployeeDistrib) {
 			const success = await corp.setAutoJobAssignment(divisionName, cityName, job, amount);
 			if (success) {
-				ns.tprint(`Successfully allocated ${amount} employees to ${job}`);
+				//ns.tprint(`Successfully allocated ${amount} employees to ${job}`);
 			}
 		}
 	}
 
 	const hireEmployees = (numToHire) => {
 		let numHired = 0;
-		ns.tprint(`Hiring ${numToHire} employees...`);
+		//ns.tprint(`Hiring ${numToHire} employees...`);
 		while (numHired < numToHire) {
 			corp.hireEmployee(divisionName, cityName);
 			numHired++;
 		}
-		ns.tprint(`Done`);
+		//ns.tprint(`Done`);
 	}
 
 	const upgradeOffice = async () => {
 		const sizeToBuy = reqEmployees - office.size;
-		ns.tprint(`Opening ${sizeToBuy} employee positions...`);
+		//ns.tprint(`Opening ${sizeToBuy} employee positions...`);
 		const upgradeCost = corp.getOfficeSizeUpgradeCost(divisionName, cityName, sizeToBuy);
 		while (corp.getCorporation().funds < upgradeCost) {
 			await ns.sleep(1000); // wait until we have enough money

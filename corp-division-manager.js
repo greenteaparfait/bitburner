@@ -4,8 +4,45 @@ const ALL_CITIES = ["Aevum", "Chongqing", "Sector-12", "New Tokyo", "Ishima", "V
 const DEFAULT_MAX_PRODUCTS = 3
 const MIN_WH_UPGRADES = 5;
 
-const MATERIALS = [
+const INDUSTRIES = [
+	"Agriculture",
+	"Chemical",
+	"Computer Hardware",
+	"Fishing",
+	"Healthcare",
+	"Mining",
+	"Pharmaceutical",
+	"Real Estate",
+	"Refinery",
+	"Restaurant",
+	"Robotics",
+	"Software",
+	"Spring Water",
+	"Tobacco",
+	"Water Utilities"
+]
+
+const INDUSTRIES_PRODUCT = [
+	"Tobacco"
+]
+
+const INDUSTRIES_NO_PRODUCT = [
+	"Agriculture"
+]
+
+const MATERIALS_TOBACCO = [
 	"Plants",
+	"Hardware",
+	"Robots",
+	"AI Cores",
+	"Real Estate"
+]
+
+const MATERIALS_AGRICULTURE = [
+	"Water",
+	"Plants",
+	"Food",
+	"Chemicals",
 	"Hardware",
 	"Robots",
 	"AI Cores",
@@ -35,7 +72,6 @@ const corpScripts = {
 	marketer: 'corp-marketer.js',
 	productManager: 'corp-product-manager.js'
 }
-
 
 /** @param {NS} ns */
 export async function main(ns) {
@@ -141,9 +177,16 @@ export async function main(ns) {
 	const enableSmartSupply = (divisionName, cityName) => {
 		if (corp.hasUnlock("Smart Supply") && corp.hasWarehouse(divisionName, cityName)) {
 			corp.setSmartSupply(divisionName, cityName, true);
-			for (const material of MATERIALS) {
-				corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
-			}
+			if (divisionName == "TOBACCO"){
+				for (const material of MATERIALS_TOBACCO) {
+					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
+				};
+			} else {divisionName == "AGRICULTURE"} {
+				for (const material of MATERIALS_AGRICULTURE) {
+					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
+				};
+			};
+
 		}
 	}
 
@@ -151,34 +194,22 @@ export async function main(ns) {
 		const division = corp.getDivision(divisionName);
 		const warehouse = corp.getWarehouse(divisionName, cityName)
 		const warehouseSize = warehouse.size;
-		const buyLimit = Math.round(warehouseSize*0.7);  // 10% of warehouse size
-		const buyLimit_plant = Math.round(warehouseSize*0.7);  // 90% of warehouse size
+		const buyLimit = Math.round(warehouseSize*0.1);  // 10% of warehouse size
+		const buyLimit_plant = Math.round(warehouseSize*0.1);  // 90% of warehouse size
 		
-		for (let prodId of division.products) {
-			const rawProd = corp.getProduct(divisionName, "Sector-12", prodId);
-			if ( rawProd.actualSellAmount >= rawProd.productionAmount) {
-				buyRatio++;
-				manpower++;
-				ns.run(corpScripts.recruiter, 1, "Tobacco", cityName, manpower);
-			} else {
-				buyRatio--;
-			};
-			if (buyRatio < 0) {
-				buyRatio = 0;
+		if (divisionName in INDUSTRIES_PRODUCT) {
+			for (let prodId of division.products) {
+				const rawProd = corp.getProduct(divisionName, "Sector-12", prodId);
+				if ( rawProd.actualSellAmount >= rawProd.productionAmount) {
+					manpower++;
+					ns.run(corpScripts.recruiter, 1, divisionName, cityName, manpower);
+				};
 			};
 		};
 		
 		if (corp.hasWarehouse(divisionName, cityName)) {
-			for (const material of MATERIALS) {
-				if (material == "Plants") {
-					if (warehouse.sizeUsed < buyLimit_plant) {
-						corp.buyMaterial(divisionName, cityName, material, buyRatio, 'MP');
-						corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
-					} else {
-						corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
-						corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
-					};
-				} else {
+			if (divisionName == "TOBACCO") {
+				for (const material of MATERIALS_TOBACCO) {
 					if (warehouse.sizeUsed < buyLimit) {
 						corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
 						corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
@@ -186,8 +217,18 @@ export async function main(ns) {
 						corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
 						corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
 					};
-				};
-			}
+				}
+			} else if (divisionName == "AGRICULTURE") {
+				for (const material of MATERIALS_AGRICULTURE) {
+					if (warehouse.sizeUsed < buyLimit) {
+						corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+						corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+					} else {
+						corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+						corp.sellMaterial(divisionName, cityName, material, 'MAX', 'MP')
+					};
+				}
+			};
 		}
 	}
 
@@ -202,21 +243,41 @@ export async function main(ns) {
 		}
 */
 		if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
-			for (const material of MATERIALS) {
+			for (const material of MATERIALS_TOBACCO) {
 				corp.setMaterialMarketTA1(divisionName, cityName, material, true);
 			}
 			for (const product of division.products) {
 				corp.setProductMarketTA1(divisionName, product, true);
 			}
 		}
+
 		if (corp.hasResearched(divisionName, researchNames.marketTA2)) {
-			for (const material of MATERIALS) {
+			for (const material of MATERIALS_TOBACCO) {
 				corp.setMaterialMarketTA2(divisionName, cityName, material, true);
 			}
 			for (const product of division.products) {
 				corp.setProductMarketTA2(divisionName, product, true);
 			}
 		}
+
+		if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
+			for (const material of MATERIALS_AGRICULTURE) {
+				corp.setMaterialMarketTA1(divisionName, cityName, material, true);
+			}
+			for (const product of division.products) {
+				corp.setProductMarketTA1(divisionName, product, true);
+			}
+		}
+		
+		if (corp.hasResearched(divisionName, researchNames.marketTA2)) {
+			for (const material of MATERIALS_AGRICULTURE) {
+				corp.setMaterialMarketTA2(divisionName, cityName, material, true);
+			}
+			for (const product of division.products) {
+				corp.setProductMarketTA2(divisionName, product, true);
+			}
+		}
+
 	}
 
 	const getUnownedCities = (division) => {
@@ -250,16 +311,18 @@ export async function main(ns) {
         
         ns.run(corpScripts.researcher, 1, divisionName); // for auto research
 
-		if (!ns.scriptRunning(corpScripts.productManager, "home")) {
-            ns.run(corpScripts.productManager, 1, prodBudget); // for product management
+		if (divisionName in INDUSTRIES_PRODUCT) {
+			if (!ns.scriptRunning(corpScripts.productManager, "home")) {
+				ns.run(corpScripts.productManager, 1, prodBudget); // for product management
+			}
 		}
-        
+
 		for (const city of division.cities) {
 			if (shouldUpgradeCity(divisionName, city)) {
 				await upgradeCity(divisionName, city);
 			}
 			//buyMaterials(divisionName, city);
-			//enableSmartSupply(divisionName, city);
+			enableSmartSupply(divisionName, city);
 			ensureMarketTAEnabled(divisionName, city);
 			buyMaterials(divisionName, city);
 		};
@@ -272,9 +335,11 @@ export async function main(ns) {
 			corp.expandCity(divisionName, cityToPurchase);
 		}
 
-		const maxProducts = getMaxProducts(divisionName);
-		if (division.products.length === maxProducts && unownedCities.length === 0) {
-			ns.run(corpScripts.marketer, 1, divisionName);
+		if (divisionName in INDUSTRIES_PRODUCT) {
+			const maxProducts = getMaxProducts(divisionName);
+			if (division.products.length === maxProducts && unownedCities.length === 0) {
+				ns.run(corpScripts.marketer, 1, divisionName);
+			}
 		}
 
 		await ns.sleep(5000); // wait 5s
