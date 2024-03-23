@@ -194,9 +194,9 @@ export async function main(ns) {
 		const division = corp.getDivision(divisionName);
 		const warehouse = corp.getWarehouse(divisionName, cityName)
 		const warehouseSize = warehouse.size;
-		const buyLimit = Math.round(warehouseSize*0.1);  // 10% of warehouse size
-		const buyLimit_plant = Math.round(warehouseSize*0.1);  // 90% of warehouse size
-		
+		const buyMinLimit = Math.round(warehouseSize*0.1);  // 10% of warehouse size
+		const buyMaxLimit = Math.round(warehouseSize*0.9);  // 10% of warehouse size
+
 		if (divisionName in INDUSTRIES_PRODUCT) {
 			for (let prodId of division.products) {
 				const rawProd = corp.getProduct(divisionName, "Sector-12", prodId);
@@ -210,26 +210,55 @@ export async function main(ns) {
 		if (corp.hasWarehouse(divisionName, cityName)) {
 			if (divisionName == "TOBACCO") {
 				for (const material of MATERIALS_TOBACCO) {
-					if (warehouse.sizeUsed < buyLimit) {
-						corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
-						corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+					if (material == "Plant") {
+						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						} else if (warehouse.sizeUsed > buyMaxLimit){
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
+						} else {
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
+						};
 					} else {
-						corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
-						corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
+						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						} else if (warehouse.sizeUsed > buyMinLimit) { 
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						};
 					};
-				}
+				};
 			} else if (divisionName == "AGRICULTURE") {
 				for (const material of MATERIALS_AGRICULTURE) {
-					if (warehouse.sizeUsed < buyLimit) {
-						corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
-						corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
-					} else {
+					if (material == "Water" || material == "Chemical") {
+						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
+						} else if (warehouse.sizeUsed > buyMaxLimit) { 
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 1, 'MP');
+						} else {
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
+						};
+					} else if (material == "Food" || material == "Plant" ) {
 						corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
-						corp.sellMaterial(divisionName, cityName, material, 'MAX', 'MP')
+						corp.sellMaterial(divisionName, cityName, material, 'MAX', 'MP');
+					} else {
+						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						} else if (warehouse.sizeUsed > buyMinLimit) { 
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						};
 					};
-				}
+				};
 			};
-		}
+		};
 	}
 
 	const ensureMarketTAEnabled = (divisionName, cityName) => {
@@ -242,42 +271,39 @@ export async function main(ns) {
 			}
 		}
 */
-		if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
-			for (const material of MATERIALS_TOBACCO) {
-				corp.setMaterialMarketTA1(divisionName, cityName, material, true);
-			}
-			for (const product of division.products) {
-				corp.setProductMarketTA1(divisionName, product, true);
-			}
-		}
+		if (divisionName == "TOBACCO") {
+			if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
+				for (const material of MATERIALS_TOBACCO) {
+					corp.setMaterialMarketTA1(divisionName, cityName, material, true);
+				}
+				for (const product of division.products) {
+					corp.setProductMarketTA1(divisionName, product, true);
+				}
+			};
 
-		if (corp.hasResearched(divisionName, researchNames.marketTA2)) {
-			for (const material of MATERIALS_TOBACCO) {
-				corp.setMaterialMarketTA2(divisionName, cityName, material, true);
-			}
-			for (const product of division.products) {
-				corp.setProductMarketTA2(divisionName, product, true);
-			}
-		}
+			if (corp.hasResearched(divisionName, researchNames.marketTA2)) {
+				for (const material of MATERIALS_TOBACCO) {
+					corp.setMaterialMarketTA2(divisionName, cityName, material, true);
+				}
+				for (const product of division.products) {
+					corp.setProductMarketTA2(divisionName, product, true);
+				}
+			};
+		};
 
-		if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
-			for (const material of MATERIALS_AGRICULTURE) {
-				corp.setMaterialMarketTA1(divisionName, cityName, material, true);
-			}
-			for (const product of division.products) {
-				corp.setProductMarketTA1(divisionName, product, true);
-			}
-		}
-		
-		if (corp.hasResearched(divisionName, researchNames.marketTA2)) {
-			for (const material of MATERIALS_AGRICULTURE) {
-				corp.setMaterialMarketTA2(divisionName, cityName, material, true);
-			}
-			for (const product of division.products) {
-				corp.setProductMarketTA2(divisionName, product, true);
-			}
-		}
-
+		if (divisionName == "AGRICULTURE") {
+			if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
+				for (const material of MATERIALS_AGRICULTURE) {
+					corp.setMaterialMarketTA1(divisionName, cityName, material, true);
+				}
+			};
+			
+			if (corp.hasResearched(divisionName, researchNames.marketTA2)) {
+				for (const material of MATERIALS_AGRICULTURE) {
+					corp.setMaterialMarketTA2(divisionName, cityName, material, true);
+				}
+			};
+		};
 	}
 
 	const getUnownedCities = (division) => {
@@ -321,8 +347,8 @@ export async function main(ns) {
 			if (shouldUpgradeCity(divisionName, city)) {
 				await upgradeCity(divisionName, city);
 			}
-			//buyMaterials(divisionName, city);
-			enableSmartSupply(divisionName, city);
+			corp.setSmartSupply(divisionName, city, false);
+			//enableSmartSupply(divisionName, city);
 			ensureMarketTAEnabled(divisionName, city);
 			buyMaterials(divisionName, city);
 		};
