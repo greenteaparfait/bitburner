@@ -177,11 +177,11 @@ export async function main(ns) {
 	const enableSmartSupply = (divisionName, cityName) => {
 		if (corp.hasUnlock("Smart Supply") && corp.hasWarehouse(divisionName, cityName)) {
 			corp.setSmartSupply(divisionName, cityName, true);
-			if (divisionName == "TOBACCO"){
+			if (divisionName == "Tobacco"){
 				for (const material of MATERIALS_TOBACCO) {
 					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
 				};
-			} else {divisionName == "AGRICULTURE"} {
+			} else {divisionName == "GoodCrops"} {
 				for (const material of MATERIALS_AGRICULTURE) {
 					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
 				};
@@ -208,9 +208,9 @@ export async function main(ns) {
 		};
 		
 		if (corp.hasWarehouse(divisionName, cityName)) {
-			if (divisionName == "TOBACCO") {
+			if (divisionName == "Tobacco") {
 				for (const material of MATERIALS_TOBACCO) {
-					if (material == "Plant") {
+					if (material == "Plants") {
 						if (warehouse.sizeUsed < buyMinLimit) {
 							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
@@ -218,7 +218,7 @@ export async function main(ns) {
 							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
 						} else {
-							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
 						};
 					} else {
@@ -231,9 +231,9 @@ export async function main(ns) {
 						};
 					};
 				};
-			} else if (divisionName == "AGRICULTURE") {
+			} else if (divisionName == "GoodCrops") {
 				for (const material of MATERIALS_AGRICULTURE) {
-					if (material == "Water" || material == "Chemical") {
+					if (material == "Water" || material == "Chemicals") {
 						if (warehouse.sizeUsed < buyMinLimit) {
 							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
@@ -241,10 +241,10 @@ export async function main(ns) {
 							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 1, 'MP');
 						} else {
-							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
 						};
-					} else if (material == "Food" || material == "Plant" ) {
+					} else if (material == "Food" || material == "Plants" ) {
 						corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
 						corp.sellMaterial(divisionName, cityName, material, 'MAX', 'MP');
 					} else {
@@ -271,7 +271,7 @@ export async function main(ns) {
 			}
 		}
 */
-		if (divisionName == "TOBACCO") {
+		if (divisionName == "Tobacco") {
 			if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
 				for (const material of MATERIALS_TOBACCO) {
 					corp.setMaterialMarketTA1(divisionName, cityName, material, true);
@@ -291,7 +291,7 @@ export async function main(ns) {
 			};
 		};
 
-		if (divisionName == "AGRICULTURE") {
+		if (divisionName == "GoodCrops") {
 			if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
 				for (const material of MATERIALS_AGRICULTURE) {
 					corp.setMaterialMarketTA1(divisionName, cityName, material, true);
@@ -348,7 +348,7 @@ export async function main(ns) {
 				await upgradeCity(divisionName, city);
 			}
 			corp.setSmartSupply(divisionName, city, false);
-			//enableSmartSupply(divisionName, city);
+			enableSmartSupply(divisionName, city);
 			ensureMarketTAEnabled(divisionName, city);
 			buyMaterials(divisionName, city);
 		};

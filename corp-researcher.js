@@ -62,7 +62,7 @@ export async function main(ns) {
 	while(true) {
 		const researchLeft = getResearchLeft();
 		if (researchLeft.length < 1) {
-			ns.tprint(`All essential research complete for division: ${divisionName}`);
+			//ns.tprint(`All essential research complete for division: ${divisionName}`);
 			return;
 		}
 
