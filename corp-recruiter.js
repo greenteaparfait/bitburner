@@ -23,6 +23,7 @@ export async function main(ns) {
 	const reqSize = Math.max(office.size, reqEmployees);
 
 	const getJobDistribution = (officeSize) => {
+		/*
 		if (flags.research) {
 			return {
 				[JOB_TYPE.operations]: 0,
@@ -32,11 +33,13 @@ export async function main(ns) {
 				[JOB_TYPE.development]: 1,
 			}
 		}
+		*/
 		if (officeSize >= 10 && officeSize < 100) {
 			return {
 				[JOB_TYPE.operations]: 0.5,
 				[JOB_TYPE.engineer]: 0.3,
-				[JOB_TYPE.management]: 0.2
+				[JOB_TYPE.management]: 0.1,
+				[JOB_TYPE.business]: 0.1
 			}
 		} else {
 			return {

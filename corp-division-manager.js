@@ -27,10 +27,21 @@ const INDUSTRIES_PRODUCT = [
 ]
 
 const INDUSTRIES_NO_PRODUCT = [
-	"Agriculture"
+	"Agriculture",
+	"Chemical",
+	"Fishing"
 ]
 
 const MATERIALS_TOBACCO = [
+	"Plants",
+	"Hardware",
+	"Robots",
+	"AI Cores",
+	"Real Estate"
+]
+
+const MATERIALS_FISHING = [
+	"Food",
 	"Plants",
 	"Hardware",
 	"Robots",
@@ -44,6 +55,16 @@ const MATERIALS_AGRICULTURE = [
 	"Food",
 	"Chemicals",
 	"Hardware",
+	"Robots",
+	"AI Cores",
+	"Real Estate"
+]
+
+const MATERIALS_CHEMICAL = [
+	"Water",
+	"Plants",
+	"Hardware",
+	"Chemicals",
 	"Robots",
 	"AI Cores",
 	"Real Estate"
@@ -181,8 +202,16 @@ export async function main(ns) {
 				for (const material of MATERIALS_TOBACCO) {
 					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
 				};
-			} else {divisionName == "GoodCrops"} {
+			} else if (divisionName == "GoodCrops") {
 				for (const material of MATERIALS_AGRICULTURE) {
+					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
+				};
+			} else if (divisionName == "Chemical") {
+				for (const material of MATERIALS_CHEMICAL) {
+					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
+				};
+			} else if (divisionName == "Fishing") {
+				for (const material of MATERIALS_CHEMICAL) {
 					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
 				};
 			};
@@ -212,20 +241,25 @@ export async function main(ns) {
 				for (const material of MATERIALS_TOBACCO) {
 					if (material == "Plants") {
 						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.setSmartSupply(divisionName, cityName, true);
 							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
 						} else if (warehouse.sizeUsed > buyMaxLimit){
+							corp.setSmartSupply(divisionName, cityName, false);
 							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
 						} else {
+							corp.setSmartSupply(divisionName, cityName, true);
 							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
 						};
 					} else {
 						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.setSmartSupply(divisionName, cityName, true);
 							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
 						} else if (warehouse.sizeUsed > buyMinLimit) { 
+							corp.setSmartSupply(divisionName, cityName, true);
 							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
 						};
@@ -235,12 +269,15 @@ export async function main(ns) {
 				for (const material of MATERIALS_AGRICULTURE) {
 					if (material == "Water" || material == "Chemicals") {
 						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.setSmartSupply(divisionName, cityName, true);
 							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
 						} else if (warehouse.sizeUsed > buyMaxLimit) { 
+							corp.setSmartSupply(divisionName, cityName, false);
 							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 1, 'MP');
 						} else {
+							corp.setSmartSupply(divisionName, cityName, true);
 							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
 						};
@@ -249,9 +286,73 @@ export async function main(ns) {
 						corp.sellMaterial(divisionName, cityName, material, 'MAX', 'MP');
 					} else {
 						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.setSmartSupply(divisionName, cityName, true);
 							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
 						} else if (warehouse.sizeUsed > buyMinLimit) { 
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						};
+					};
+				};
+			} else if (divisionName == "Chemical") {
+				for (const material of MATERIALS_CHEMICAL) {
+					if (material == "Water" || material == "Plants") {
+						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
+						} else if (warehouse.sizeUsed > buyMaxLimit) { 
+							corp.setSmartSupply(divisionName, cityName, false);
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 1, 'MP');
+						} else {
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
+						};
+					} else if (material == "Chemicals" ) {
+						corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+						corp.sellMaterial(divisionName, cityName, material, 'MAX', 'MP');
+					} else {
+						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						} else if (warehouse.sizeUsed > buyMinLimit) { 
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						};
+					};
+				};
+			} else if (divisionName == "Fishing") {
+				for (const material of MATERIALS_FISHING) {
+					if (material == "Plants") {
+						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
+						} else if (warehouse.sizeUsed > buyMaxLimit) { 
+							corp.setSmartSupply(divisionName, cityName, false);
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 1, 'MP');
+						} else {
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
+						};
+					} else if (material == "Food" ) {
+						corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+						corp.sellMaterial(divisionName, cityName, material, 'MAX', 'MP');
+					} else {
+						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						} else if (warehouse.sizeUsed > buyMinLimit) {
+							corp.setSmartSupply(divisionName, cityName, true); 
 							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
 							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
 						};
@@ -259,7 +360,7 @@ export async function main(ns) {
 				};
 			};
 		};
-	}
+	};
 
 	const ensureMarketTAEnabled = (divisionName, cityName) => {
 		const division = corp.getDivision(divisionName);
@@ -304,6 +405,36 @@ export async function main(ns) {
 				}
 			};
 		};
+
+		if (divisionName == "Chemical") {
+			if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
+				for (const material of MATERIALS_CHEMICAL) {
+					corp.setMaterialMarketTA1(divisionName, cityName, material, true);
+				}
+			};
+			
+			if (corp.hasResearched(divisionName, researchNames.marketTA2)) {
+				for (const material of MATERIALS_CHEMICAL) {
+					corp.setMaterialMarketTA2(divisionName, cityName, material, true);
+				}
+			};
+		};
+
+		if (divisionName == "Fishing") {
+			if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
+				for (const material of MATERIALS_FISHING) {
+					corp.setMaterialMarketTA1(divisionName, cityName, material, true);
+				}
+			};
+			
+			if (corp.hasResearched(divisionName, researchNames.marketTA2)) {
+				for (const material of MATERIALS_FISHING) {
+					corp.setMaterialMarketTA2(divisionName, cityName, material, true);
+				}
+			};
+		};
+
+
 	}
 
 	const getUnownedCities = (division) => {
@@ -335,19 +466,23 @@ export async function main(ns) {
 	while (true) {
 		const division = corp.getDivision(divisionName);
         
-        ns.run(corpScripts.researcher, 1, divisionName); // for auto research
-
 		if (divisionName in INDUSTRIES_PRODUCT) {
 			if (!ns.scriptRunning(corpScripts.productManager, "home")) {
 				ns.run(corpScripts.productManager, 1, prodBudget); // for product management
 			}
-		}
+		};
 
 		for (const city of division.cities) {
+			ns.run(corpScripts.researcher, 1, divisionName, city); // for auto research
 			if (shouldUpgradeCity(divisionName, city)) {
 				await upgradeCity(divisionName, city);
-			}
-			corp.setSmartSupply(divisionName, city, false);
+			};
+			if (corp.hasWarehouse(divisionName, city)) {
+				corp.setSmartSupply(divisionName, city, false);
+			} else {
+				corp.purchaseWarehouse(divisionName, city);
+				corp.setSmartSupply(divisionName, city, false);
+			}; 
 			enableSmartSupply(divisionName, city);
 			ensureMarketTAEnabled(divisionName, city);
 			buyMaterials(divisionName, city);
@@ -356,18 +491,18 @@ export async function main(ns) {
 		const unownedCities = getUnownedCities(division);
 		if (unownedCities.length > 0) {
 			const cityToPurchase = unownedCities.pop(); // grab whatever
-			const cost = corp.getExpandCityCost();
+			const cost = corp.getConstants().officeInitialCost;
 			await waitForFunds(cost);
 			corp.expandCity(divisionName, cityToPurchase);
-		}
+		};
 
 		if (divisionName in INDUSTRIES_PRODUCT) {
 			const maxProducts = getMaxProducts(divisionName);
 			if (division.products.length === maxProducts && unownedCities.length === 0) {
 				ns.run(corpScripts.marketer, 1, divisionName);
 			}
-		}
+		};
 
 		await ns.sleep(5000); // wait 5s
-	}
+	};
 }
