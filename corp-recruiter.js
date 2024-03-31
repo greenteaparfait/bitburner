@@ -36,18 +36,19 @@ export async function main(ns) {
 		*/
 		if (officeSize >= 10 && officeSize < 100) {
 			return {
-				[JOB_TYPE.operations]: 0.5,
-				[JOB_TYPE.engineer]: 0.3,
+				[JOB_TYPE.operations]: 0.05,
+				[JOB_TYPE.engineer]: 0.1,
 				[JOB_TYPE.management]: 0.1,
-				[JOB_TYPE.business]: 0.1
+				[JOB_TYPE.business]: 0.7,
+				[JOB_TYPE.development]: 0.05,
 			}
 		} else {
 			return {
-				[JOB_TYPE.operations]: 0.55,
-				[JOB_TYPE.engineer]: 0.2,
+				[JOB_TYPE.operations]: 0.05,
+				[JOB_TYPE.engineer]: 0.1,
 				[JOB_TYPE.management]: 0.1,
-				[JOB_TYPE.business]: 0.05,
-				[JOB_TYPE.development]: 0.1,
+				[JOB_TYPE.business]: 0.6,
+				[JOB_TYPE.development]: 0.15,
 			}
 		}
 	}
