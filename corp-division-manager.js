@@ -23,7 +23,8 @@ const INDUSTRIES = [
 ]
 
 const INDUSTRIES_PRODUCT = [
-	"Tobacco"
+	"Tobacco",
+	"Restaurant"
 ]
 
 const INDUSTRIES_NO_PRODUCT = [
@@ -65,6 +66,15 @@ const MATERIALS_CHEMICAL = [
 	"Plants",
 	"Hardware",
 	"Chemicals",
+	"Robots",
+	"AI Cores",
+	"Real Estate"
+]
+
+const MATERIALS_RESTAURANT = [
+	"Water",
+	"Food",
+	"Hardware",
 	"Robots",
 	"AI Cores",
 	"Real Estate"
@@ -211,7 +221,11 @@ export async function main(ns) {
 					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
 				};
 			} else if (divisionName == "Fishing") {
-				for (const material of MATERIALS_CHEMICAL) {
+				for (const material of MATERIALS_FISHING) {
+					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
+				};
+			} else if (divisionName == "Restaurant") {
+				for (const material of MATERIALS_RESTAURANT) {
 					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
 				};
 			};
@@ -358,6 +372,34 @@ export async function main(ns) {
 						};
 					};
 				};
+			} else if (divisionName == "Restaurant") {
+				for (const material of MATERIALS_RESTAURANT) {
+					if (material == "Food" || material == "Water") {
+						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						} else if (warehouse.sizeUsed > buyMaxLimit){
+							corp.setSmartSupply(divisionName, cityName, false);
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 1, 'MP')
+						} else {
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP');
+						};
+					} else {
+						if (warehouse.sizeUsed < buyMinLimit) {
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 1, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						} else if (warehouse.sizeUsed > buyMinLimit) { 
+							corp.setSmartSupply(divisionName, cityName, true);
+							corp.buyMaterial(divisionName, cityName, material, 0, 'MP');
+							corp.sellMaterial(divisionName, cityName, material, 0, 'MP')
+						};
+					};
+				};
 			};
 		};
 	};
@@ -429,6 +471,20 @@ export async function main(ns) {
 			
 			if (corp.hasResearched(divisionName, researchNames.marketTA2)) {
 				for (const material of MATERIALS_FISHING) {
+					corp.setMaterialMarketTA2(divisionName, cityName, material, true);
+				}
+			};
+		};
+
+		if (divisionName == "Restaurant") {
+			if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
+				for (const material of MATERIALS_RESTAURANT) {
+					corp.setMaterialMarketTA1(divisionName, cityName, material, true);
+				}
+			};
+			
+			if (corp.hasResearched(divisionName, researchNames.marketTA2)) {
+				for (const material of MATERIALS_RESTAURANT) {
 					corp.setMaterialMarketTA2(divisionName, cityName, material, true);
 				}
 			};

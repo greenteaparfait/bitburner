@@ -229,14 +229,14 @@ export async function main(ns) {
 				//developProduct(div, products, maxProducts);
 				
 				if (products.length < maxProducts) {
-					if (canDevelopProduct(business) && shouldDevelopProduct(products)) {
-						ns.print("can develop and should develop products");
+					if (canDevelopProduct(business)) {  //} && shouldDevelopProduct(products)) {
+						ns.print("can develop products");
 						const productName = `prod-${Date.now()}`;
 						const budget = prodBudget / 2;
 						ns.print("INFO: Developing " + productName + " at Sector-12");
-						createProduct(division, productName, budget, budget);
+						createProduct(div, productName, budget, budget);
 					} else {
-						ns.print("cannot develop or no need to develop");
+						ns.print("cannot develop");
 					};
 				} else {
 					ns.print("We have already max number of products");
@@ -250,9 +250,40 @@ export async function main(ns) {
 				};
 				
 				ns.print(`SUCCESS\t${div}: All products are generating money`);
-			} else {
-				ns.print("This division does not produce any products");
-			};
+			}; 
+
+			if ( div == "Restaurant" ) {
+				ns.print(div + " can produce products");
+				const products = getProducts(div);
+				const maxProducts = getMaxProducts(div);
+				ns.print("max products = " + maxProducts);
+				ns.print("product array = " + products.toString());
+				ns.print("current num of products = " + products.length);
+				//developProduct(div, products, maxProducts);
+				
+				if (products.length < maxProducts) {
+					if (canDevelopProduct(business)) { //} && shouldDevelopProduct(products)) {
+						ns.print("can develop products");
+						const productName = `prod-${Date.now()}`;
+						const budget = prodBudget / 2;
+						ns.print("INFO: Developing " + productName + " at Sector-12");
+						createProduct(div, productName, budget, budget);
+					} else {
+						ns.print("cannot develop");
+					};
+				} else {
+					ns.print("We have already max number of products");
+					if (!isDevelopingProduct) {
+						ns.print("We have all products out of development");
+						ns.print("Revising products...");
+						reviseProduct(div, products);
+					} else {
+						ns.print("There is a product under development");
+					};
+				};
+				ns.print(`SUCCESS\t${div}: All products are generating money`);
+			}; 
+
 			ns.print("***********");
 		}
 		await ns.sleep(interval);
