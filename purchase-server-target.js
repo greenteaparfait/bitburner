@@ -86,19 +86,19 @@ export async function main(ns) {
 			//  3. Run our hacking script on the newly-purchased server with 3 threads
 			//  4. Increment our iterator to indicate that we've bought a new server
 			serverName = "pserv-" + i.toString();
-			ns.tprint("Server name, " + serverName)
+			//ns.tprint("Server name, " + serverName)
 			hostname = ns.purchaseServer(serverName, ram);
 			hostname = serverName;
 
 			//numThreads = parseInt(ns.getServerMaxRam(hostname)/(ns.getScriptRam("early-hack-template.js")*j)); 
-			ns.tprint("Number of threads per target = " + numThreads);
+			//ns.tprint("Number of threads per target = " + numThreads);
 			if (hostname != "") {
-				ns.tprint("We have a server, " + hostname);
+				//ns.tprint("We have a server, " + hostname);
 				//await ns.scp("search-and-hack.js", hostname);
 				await ns.scp("early-hack-template.js", hostname);
 				//await ns.scp("helpfunc.js", hostname)              
                 numThreads = parseInt(ns.getServerMaxRam(hostname)/(ns.getScriptRam("early-hack-template.js")*j)); 
-				ns.tprint("Number of threads per target = " + numThreads);
+				//ns.tprint("Number of threads per target = " + numThreads);
 				ns.exec("early-hack-template.js", hostname, numThreads, target);
 			} else {
 				ns.tprint("hostname is empty");

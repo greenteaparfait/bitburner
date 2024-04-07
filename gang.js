@@ -404,9 +404,10 @@ async function tryAscendMembers(ns) {
             //log(ns, `SUCCESS: Ascended member ${member} to increase multis by ${importantStats.map(s => `${s} -> ${ascResult[s].toFixed(2)}x`).join(", ")}`, false, 'success');
             lastMemberReset[member] = Date.now();
         }
-        else
+        else {
             //log(ns, `ERROR: Attempt to ascended member ${member} failed. Go investigate!`, false, 'error');
-    }
+        };
+    };
 }
 
 /** @param {NS} ns 

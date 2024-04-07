@@ -84,7 +84,7 @@ export async function main(ns) {
                 if (boughtFor > 0) {
                     let message = 'Bought ' + Math.round(shares) + ' Long shares of ' + stock + ' for ' + formatReallyBigNumber(boughtFor);
 
-                    ns.toast(message, 'success', toastDuration);
+                    //ns.toast(message, 'success', toastDuration);
                 }
             }
         }
@@ -99,7 +99,7 @@ export async function main(ns) {
                     if (boughtFor > 0) {
                         let message = 'Bought ' + Math.round(shares) + ' Short shares of ' + stock + ' for ' + formatReallyBigNumber(boughtFor);
 
-                        ns.toast(message, 'success', toastDuration);
+                       // ns.toast(message, 'success', toastDuration);
                     }
                 }
             }
@@ -126,7 +126,7 @@ export async function main(ns) {
                 let soldFor = ns.stock.sellStock(stock, position[0]);
                 let message = 'Sold ' + position[0] + ' Long shares of ' + stock + ' for ' + ns.formatNumber(soldFor, 3, 1000, false);
 
-                ns.toast(message, 'success', toastDuration);
+                //ns.toast(message, 'success', toastDuration);
             }
         }
 
@@ -139,7 +139,7 @@ export async function main(ns) {
                     let soldFor = ns.stock.sellShort(stock, position[2]);
                     let message = 'Sold ' + stock + ' Short shares of ' + stock + ' for ' + ns.formatNumber(soldFor, 3, 1000, false);
 
-                    ns.toast(message, 'success', toastDuration);
+                    //ns.toast(message, 'success', toastDuration);
                 }
             }
         }
