@@ -8,24 +8,27 @@ export async function main(ns) {
 	var maxServer = 25;
 	var reducedMoney = [];
 
-	var availableMoney = ns.getServerMoneyAvailable("home");
+	var availableMoney = ns.getServerMoneyAvailable('home');
 	reducedMoney = prefixMoney(availableMoney);
-	ns.tprint("Available money = " + reducedMoney[0] + reducedMoney[1]);
+	//ns.tprint("Available money = " + reducedMoney[0] + reducedMoney[1]);
+	ns.tprint("Available money = " + availableMoney);
 
 	var fundPerServer = parseInt(availableMoney/(maxServer));
 	reducedMoney = prefixMoney(fundPerServer);
-	ns.tprint("Fund per server = " + reducedMoney[0] + reducedMoney[1]);
+	//ns.tprint("Fund per server = " + reducedMoney[0] + reducedMoney[1]);
+	ns.tprint("Fund per server = " + fundPerServer);
 
 	var ram = 8;
 
 	// How much RAM each purchased server will have.
-	for (let i = 2; i <= 20; i++) {
+	for (let i = 2; i <= 30; i++) {
 		if ( fundPerServer >= ns.getPurchasedServerCost(Math.pow(2, i)) ) {
 			ram = Math.pow(2,i);
+			ns.tprint("Exponent = " + i);
 		};
 	};
 	ns.tprint("Ram = " + ram);
-	ns.tprint(prefixMoney(availableMoney)[0] + prefixMoney(availableMoney)[1]);
+	//ns.tprint(prefixMoney(availableMoney)[0] + prefixMoney(availableMoney)[1]);
 
     await ns.sleep(100);
 	
