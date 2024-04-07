@@ -4,6 +4,7 @@ const ALL_CITIES = ["Aevum", "Chongqing", "Sector-12", "New Tokyo", "Ishima", "V
 const DEFAULT_MAX_PRODUCTS = 3
 const MIN_WH_UPGRADES = 5;
 var researchFlag = {sector12Flag: false, aevumFlag: false, chongqingFlag: false, newtokyoFlag: false, ishimaFlag: false, volhavenFlag: false};
+var recruitFlag = {sector12Flag: false, aevumFlag: false, chongqingFlag: false, newtokyoFlag: false, ishimaFlag: false, volhavenFlag: false};
 
 const INDUSTRIES = [
 	"Agriculture",
@@ -107,10 +108,10 @@ const corpScripts = {
 
 /** @param {NS} ns */
 export async function main(ns) {
-	const industry = ns.args[0];
-	const divisionName = ns.args[1];
-	const reqEmployees = ns.args[2];
-	const prodBudget = ns.args[3];
+	const industry = (ns.args[0] || "Tobacco");
+	const divisionName = (ns.args[1] || "Tobacco");
+	const reqEmployees = (ns.args[2] || 10);
+	const prodBudget = (ns.args[3] || MIN_FUNDS);
 	const minWarehouseCapacity = ns.args[4] || DEFAULT_WH_CAPACITY;
 	var buyRatio = 1;  // default value for material buy
 	var manpower = reqEmployees; // default office size
@@ -198,7 +199,30 @@ export async function main(ns) {
 		 *  If there is no operator, hire more operators
 		 */
 		if (hasMarketTAButNoOps(divisionName, office)) {
-			ns.run(corpScripts.recruiter, 1, divisionName, cityName);
+			if (cityName == "Sector-12" && recruitFlag.sector12Flag == false) {
+				recruitFlag.sector12Flag = true;
+				ns.run(corpScripts.recruiter, 1, divisionName, cityName);
+			};
+			if (cityName == "Aevum" && recruitFlag.aevumFlag == false) {
+				recruitFlag.aevumFlag = true;
+				ns.run(corpScripts.recruiter, 1, divisionName, cityName);
+			};
+			if (cityName == "Chongqing" && recruitFlag.chongqingFlag == false) {
+				recruitFlag.chongqingFlag = true;
+				ns.run(corpScripts.recruiter, 1, divisionName, cityName);
+			};
+			if (cityName == "Volhaven" && recruitFlag.volhavenFlag == false) {
+				recruitFlag.volhavenFlag = true;
+				ns.run(corpScripts.recruiter, 1, divisionName, cityName);
+			};
+			if (cityName == "Ishima" && recruitFlag.ishimaFlag == false) {
+				recruitFlag.ishimaFlag = true;
+				ns.run(corpScripts.recruiter, 1, divisionName, cityName);
+			};
+			if (cityName == "New Tokyo" && recruitFlag.newtokyoFlag == false) {
+				recruitFlag.newtokyoFlag = true;
+				ns.run(corpScripts.recruiter, 1, divisionName, cityName);
+			};
 		}
 		/**
 		 *  If there is no warehouse, get a warehouse

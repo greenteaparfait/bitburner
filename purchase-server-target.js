@@ -19,7 +19,7 @@ export async function main(ns) {
 	var ram = 8;
 
 	// How much RAM each purchased server will have.
-	for (let i = 4; i <= 20; i++) {
+	for (let i = 2; i <= 20; i++) {
 		if ( fundPerServer >= ns.getPurchasedServerCost(Math.pow(2, i)) ) {
 			ram = Math.pow(2,i);
 		};
@@ -59,15 +59,14 @@ export async function main(ns) {
             //ns.tprint("Target node #" + j + " = " + value);
         };
     };
-    j = targetList.length;
-    ns.tprint("Target list : " + targetList);
-    numThreads = parseInt(ns.getServerMaxRam(hostname)/(ns.getScriptRam("early-hack-template.js")*j)); 
-    ns.tprint("Number of threads per target = " + numThreads);
+
+	j = targetList.length;
+	ns.tprint("Target list : " + targetList);
     // Choose the first target among the target list
     if ( j != 0) {
         var target = targetList.pop()
         ns.tprint("Target = " + target);
-        ns.exec("early-hack-template.js", hostname, numThreads, target);
+        //ns.exec("early-hack-template.js", hostname, numThreads, target);
     } else {
         ns.tprint("No target, set to default, n00dles");
         var target = "n00dles";
@@ -90,6 +89,9 @@ export async function main(ns) {
 			ns.tprint("Server name, " + serverName)
 			hostname = ns.purchaseServer(serverName, ram);
 			hostname = serverName;
+
+			//numThreads = parseInt(ns.getServerMaxRam(hostname)/(ns.getScriptRam("early-hack-template.js")*j)); 
+			ns.tprint("Number of threads per target = " + numThreads);
 			if (hostname != "") {
 				ns.tprint("We have a server, " + hostname);
 				//await ns.scp("search-and-hack.js", hostname);
@@ -98,7 +100,9 @@ export async function main(ns) {
                 numThreads = parseInt(ns.getServerMaxRam(hostname)/(ns.getScriptRam("early-hack-template.js")*j)); 
 				ns.tprint("Number of threads per target = " + numThreads);
 				ns.exec("early-hack-template.js", hostname, numThreads, target);
-			};
+			} else {
+				ns.tprint("hostname is empty");
+			}
 		} else {
 			ns.tprint("Not enough money available...");	
 		};
