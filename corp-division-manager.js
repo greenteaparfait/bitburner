@@ -188,6 +188,7 @@ export async function main(ns) {
 	}
 
 	const upgradeCity = async (divisionName, cityName) => {
+		ns.tprint("Inside upgrade city");
 		const office = corp.getOffice(divisionName, cityName);
 		/**
 		 *  If office size is smaller than requested number of employee, recruit more employees
@@ -199,6 +200,7 @@ export async function main(ns) {
 		 *  If there is no operator, hire more operators
 		 */
 		if (hasMarketTAButNoOps(divisionName, office)) {
+			ns.tprint("has marketTA but no Operations");
 			if (cityName == "Sector-12" && recruitFlag.sector12Flag == false) {
 				recruitFlag.sector12Flag = true;
 				ns.run(corpScripts.recruiter, 1, divisionName, cityName);
@@ -228,18 +230,21 @@ export async function main(ns) {
 		 *  If there is no warehouse, get a warehouse
 		 */
 		if (hasMarketTAButNoWarehouse(divisionName, cityName)) {
+			ns.tprint("has marketTA but no warehouse");
 			const cost = corp.getPurchaseWarehouseCost();
 			await waitForFunds(cost);
 			corp.purchaseWarehouse(divisionName, cityName);
-		}
+		};
+
 		/**
 		 *  If warehouse size is smaller than the requested minimum warehouse size, upgrade warehouse
 		 */
-		if (hasMarketTAButLessWarehouseCapacity(divisionName, cityName)) {
-			const cost = corp.getUpgradeWarehouseCost(divisionName, cityName, MIN_WH_UPGRADES);
-			await waitForFunds(cost);
-			corp.upgradeWarehouse(divisionName, cityName, MIN_WH_UPGRADES);
-		}
+		//if (hasMarketTAButLessWarehouseCapacity(divisionName, cityName)) {
+		//	ns.tprint("has marketTA but less warehouse capacity");
+		//	const cost = corp.getUpgradeWarehouseCost(divisionName, cityName, MIN_WH_UPGRADES);
+		//	await waitForFunds(cost);
+		//	corp.upgradeWarehouse(divisionName, cityName, MIN_WH_UPGRADES);
+		//};
 	}
 
 	const enableSmartSupply = (divisionName, cityName) => {
@@ -249,7 +254,7 @@ export async function main(ns) {
 				for (const material of MATERIALS_TOBACCO) {
 					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
 				};
-			} else if (divisionName == "GoodCrops") {
+			} else if (divisionName == "Agriculture") {
 				for (const material of MATERIALS_AGRICULTURE) {
 					corp.setSmartSupplyOption(divisionName, cityName, material, "leftovers");
 				};
@@ -280,7 +285,7 @@ export async function main(ns) {
 		const upgradeCost = corp.getOfficeSizeUpgradeCost(divisionName, cityName, oneMorePosition);
 		//ns.tprint("Inside buy material: ");
 		/**
-		 *  If all the produced products are sold, then recruit one more employee in operations position to increase production 
+		 *  If all the produced products are sold, then recruit one more employee in operations position and buy materials to increase production 
 		 */
 		if (divisionName == "Tobacco") {
 			//ns.tprint("-------------------------------------");
@@ -303,6 +308,22 @@ export async function main(ns) {
 					};
 				} else {
 					//ns.tprint("No need to hire more:")
+				};
+				
+				// If warehouse is near full, stop buying materials
+				if (warehouse.sizeUsed > 0.9*warehouseSize) 
+				{
+					ns.tprint("WARNING Stop buying more materials in " + cityName + " of division, " + divisionName);
+					corp.buyMaterial(divisionName, cityName, "Hardware", 0);
+					corp.buyMaterial(divisionName, cityName, "Robots", 0);
+					corp.buyMaterial(divisionName, cityName, "AI Cores", 0);
+					corp.buyMaterial(divisionName, cityName, "Real Estate", 0);
+				} else {
+					ns.tprint("INFO Buying more materials in " + cityName + " of division, " + divisionName);
+					corp.buyMaterial(divisionName, cityName, "Hardware", 1);
+					corp.buyMaterial(divisionName, cityName, "Robots", 1);
+					corp.buyMaterial(divisionName, cityName, "AI Cores", 1);
+					corp.buyMaterial(divisionName, cityName, "Real Estate", 1);
 				};
 			};
 			//ns.tprint("-------------------------------------");
@@ -341,7 +362,7 @@ export async function main(ns) {
 						};
 					};
 				};
-			} else if (divisionName == "GoodCrops") {
+			} else if (divisionName == "Agriculture") {
 				for (const material of MATERIALS_AGRICULTURE) {
 					if (material == "Water" || material == "Chemicals") {
 						if (warehouse.sizeUsed < buyMinLimit) {
@@ -496,7 +517,7 @@ export async function main(ns) {
 			};
 		};
 
-		if (divisionName == "GoodCrops") {
+		if (divisionName == "Agriculture") {
 			if (corp.hasResearched(divisionName, researchNames.marketTA1)) {
 				for (const material of MATERIALS_AGRICULTURE) {
 					corp.setMaterialMarketTA1(divisionName, cityName, material, true);
@@ -579,20 +600,23 @@ export async function main(ns) {
 
 	if (!hasDivision(divisionName)) {
 		await createDivision(industry, divisionName);
-	}
+	};
 
 	while (true) {
 		const division = corp.getDivision(divisionName);
-		//ns.tprint("-------------------------------------------")
-        //ns.tprint("In " + divisionName);
+		ns.tprint("-------------------------------------------");
+        ns.tprint(" Corp Division Loop in " + divisionName);
 		if (divisionName == "Tobacco") {
 			if (!ns.scriptRunning(corpScripts.productManager, "home")) {
 				ns.run(corpScripts.productManager, 1, prodBudget); // for product management
-			}
+			};
 		};
 
 		for (const city of division.cities) {
-			//ns.tprint("In " + city + ":");
+			ns.tprint(city + " in " + divisionName);
+			/**
+			 *  Start research script
+			 */
 			if (city == "Sector-12" && researchFlag.sector12Flag == false) {
 				researchFlag.sector12Flag = true;
 				ns.run(corpScripts.researcher, 1, divisionName, city); // for auto research
@@ -622,11 +646,13 @@ export async function main(ns) {
 			 */
 			//ns.tprint("Upgrade city");
 			if (shouldUpgradeCity(divisionName, city)) {
+				ns.tprint("Upgrade City");
 				await upgradeCity(divisionName, city);
 			};
 			/**
 			 *  If a warehouse exists, then diable smart supply
 			 */
+			ns.tprint("Warehouse");
 			if (corp.hasWarehouse(divisionName, city)) {
 				corp.setSmartSupply(divisionName, city, false);
 			} 
@@ -634,6 +660,7 @@ export async function main(ns) {
 			 *  If not, get a warehouse and set the smart supply diabled
 			 */
 			else {
+				ns.tprint("Set smart supply");
 				corp.purchaseWarehouse(divisionName, city);
 				corp.setSmartSupply(divisionName, city, false);
 			}; 
@@ -641,14 +668,17 @@ export async function main(ns) {
 			 *  Set the smart supply enabled
 			 */
 			//ns.tprint("Enalbe smart supply, margetTA enalbed, buy materials");
+			ns.tprint("Enable smart supply");
 			enableSmartSupply(divisionName, city);
 			/**
 			 *  Set the MargetTA enabled
 			 */
+			ns.tprint("Market TA");
 			ensureMarketTAEnabled(divisionName, city);
 			/**
 			 *  Buy materials
 			 */
+			ns.tprint("Buy material");
 			buyMaterials(divisionName, city);
 			//ns.tprint("    ");
 		};
@@ -656,7 +686,7 @@ export async function main(ns) {
 		/**
 		 *  Expand to unowned cities
 		 */
-		//ns.tprint("Expand to unowned cities");
+		ns.tprint("Expand to unowned cities");
 		const unownedCities = getUnownedCities(division);
 		if (unownedCities.length > 0) {
 			const cityToPurchase = unownedCities.pop(); // grab whatever
@@ -668,7 +698,7 @@ export async function main(ns) {
 		/** 
 		 *  For product-generating industries, start marketer script
 		 */
-		//ns.tprint("Run marketer script");
+		ns.tprint("Run marketer script");
 		if (divisionName == "Tobacco") {
 			const maxProducts = getMaxProducts(divisionName);
 			if (division.products.length === maxProducts && unownedCities.length === 0) {
