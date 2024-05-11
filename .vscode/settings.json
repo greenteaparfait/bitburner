@@ -1,3 +1,6 @@
 {
-    "bitburner.authToken": "6zEvCqayzEy0TJuYMEzYYd/QcKoTorBXQjhUaO+tN/UO1TCoVeMtC12oncfNY0Dd"
+    "bitburner.authToken": "6zEvCqayzEy0TJuYMEzYYd/QcKoTorBXQjhUaO+tN/UO1TCoVeMtC12oncfNY0Dd",
+    "bitburner.fileWatcher.enable": true,
+    "bitburner.showFileWatcherEnabledNotification": true,
+    "bitburner.showPushSuccessNotification": true
 }
