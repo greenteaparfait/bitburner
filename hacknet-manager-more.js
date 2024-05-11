@@ -120,6 +120,11 @@ export async function main(ns) {
 			ns.hacknet.spendHashes("Increase Maximum Money", upgTarget, 1);
 	}
 
+	function reduceMinimumSecurity(ns) {
+			//ns.print("Inside reduce minimum security: ")
+			ns.hacknet.spendHashes("Reduce Minimum Security", upgTarget, 1);
+	}
+
 	function sellForCorporationFunds(ns) {
 			//ns.print("Inside sell for corporation funds: ")
 			ns.hacknet.spendHashes("Sell for Corporation Funds", upgTarget, 1);
@@ -306,6 +311,8 @@ export async function main(ns) {
 					spendForBladerunnerRank(ns);
 				case "IncreaseMaximumMoney":
 					increaseMaxMoney(ns);
+				case "ReduceMinimumSecurity":
+					reduceMinimumSecurity(ns);
 				case "SellForCorporationFunds":
 					sellForCorporationFunds(ns);
 				//default:
