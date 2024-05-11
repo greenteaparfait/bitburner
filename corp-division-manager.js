@@ -117,7 +117,7 @@ export async function main(ns) {
 	var manpower = reqEmployees; // default office size
 
 	if (!industry || !divisionName || !reqEmployees || !prodBudget) {
-		ns.tprint("ERROR Insufficient arguments\nUsage: run corp-division-manager.js <industry> <divisionName> <reqEmployees> <prodBudget> [<minWarehouseCapacity>]");
+		ns.print("ERROR Insufficient arguments\nUsage: run corp-division-manager.js <industry> <divisionName> <reqEmployees> <prodBudget> [<minWarehouseCapacity>]");
 		return;
 	}
 
@@ -188,7 +188,7 @@ export async function main(ns) {
 	}
 
 	const upgradeCity = async (divisionName, cityName) => {
-		ns.tprint("Inside upgrade city");
+		ns.print("Inside upgrade city");
 		const office = corp.getOffice(divisionName, cityName);
 		/**
 		 *  If office size is smaller than requested number of employee, recruit more employees
@@ -200,7 +200,7 @@ export async function main(ns) {
 		 *  If there is no operator, hire more operators
 		 */
 		if (hasMarketTAButNoOps(divisionName, office)) {
-			ns.tprint("has marketTA but no Operations");
+			ns.print("has marketTA but no Operations");
 			if (cityName == "Sector-12" && recruitFlag.sector12Flag == false) {
 				recruitFlag.sector12Flag = true;
 				ns.run(corpScripts.recruiter, 1, divisionName, cityName);
@@ -230,7 +230,7 @@ export async function main(ns) {
 		 *  If there is no warehouse, get a warehouse
 		 */
 		if (hasMarketTAButNoWarehouse(divisionName, cityName)) {
-			ns.tprint("has marketTA but no warehouse");
+			ns.print("has marketTA but no warehouse");
 			const cost = corp.getPurchaseWarehouseCost();
 			await waitForFunds(cost);
 			corp.purchaseWarehouse(divisionName, cityName);
@@ -240,7 +240,7 @@ export async function main(ns) {
 		 *  If warehouse size is smaller than the requested minimum warehouse size, upgrade warehouse
 		 */
 		//if (hasMarketTAButLessWarehouseCapacity(divisionName, cityName)) {
-		//	ns.tprint("has marketTA but less warehouse capacity");
+		//	ns.print("has marketTA but less warehouse capacity");
 		//	const cost = corp.getUpgradeWarehouseCost(divisionName, cityName, MIN_WH_UPGRADES);
 		//	await waitForFunds(cost);
 		//	corp.upgradeWarehouse(divisionName, cityName, MIN_WH_UPGRADES);
@@ -283,50 +283,50 @@ export async function main(ns) {
 		const buyMaxLimit = Math.round(warehouseSize*0.9);  // 10% of warehouse size
 		const oneMorePosition = 1; 
 		const upgradeCost = corp.getOfficeSizeUpgradeCost(divisionName, cityName, oneMorePosition);
-		//ns.tprint("Inside buy material: ");
+		ns.print("Inside buy material: ");
 		/**
 		 *  If all the produced products are sold, then recruit one more employee in operations position and buy materials to increase production 
 		 */
 		if (divisionName == "Tobacco") {
-			//ns.tprint("-------------------------------------");
-			//ns.tprint("Inside buy Materials of  " + cityName + " in " + divisionName);
+			ns.print("-------------------------------------");
+			ns.print("Inside buy Materials of  " + cityName + " in " + divisionName);
 			for (let prodId of division.products) {
-				//ns.tprint("For " + prodId);
+				ns.print("For " + prodId);
 				const rawProd = corp.getProduct(divisionName, cityName, prodId);
 				if ( (rawProd.actualSellAmount >= rawProd.productionAmount) &&
 						(rawProd.productionAmount > 0) &&
 						(warehouse.sizeUsed < 0.9*warehouseSize)
 				) {
-					//ns.tprint("Need to hire more:")
+					ns.print("Need to hire more:")
 					manpower++;
 					if (corp.getCorporation().funds > upgradeCost) {
-						ns.tprint("INFO Hiring one more operator in " + cityName + " of division, " + divisionName);
+						ns.print("INFO Hiring one more operator in " + cityName + " of division, " + divisionName);
 						corp.upgradeOfficeSize(divisionName, cityName, oneMorePosition);
 						corp.hireEmployee(divisionName, cityName, "Operations");
 					} else {
-						//ns.tprint("Need to hire more, but insufficient fund");
+						ns.print("Need to hire more, but insufficient fund");
 					};
 				} else {
-					//ns.tprint("No need to hire more:")
+					ns.print("No need to hire more:")
 				};
-				
+
 				// If warehouse is near full, stop buying materials
 				if (warehouse.sizeUsed > 0.9*warehouseSize) 
 				{
-					ns.tprint("WARNING Stop buying more materials in " + cityName + " of division, " + divisionName);
+					ns.print("WARNING Stop buying more materials in " + cityName + " of division, " + divisionName);
 					corp.buyMaterial(divisionName, cityName, "Hardware", 0);
 					corp.buyMaterial(divisionName, cityName, "Robots", 0);
 					corp.buyMaterial(divisionName, cityName, "AI Cores", 0);
 					corp.buyMaterial(divisionName, cityName, "Real Estate", 0);
 				} else {
-					ns.tprint("INFO Buying more materials in " + cityName + " of division, " + divisionName);
-					corp.buyMaterial(divisionName, cityName, "Hardware", 1);
-					corp.buyMaterial(divisionName, cityName, "Robots", 1);
-					corp.buyMaterial(divisionName, cityName, "AI Cores", 1);
-					corp.buyMaterial(divisionName, cityName, "Real Estate", 1);
+					ns.print("INFO Buying more materials in " + cityName + " of division, " + divisionName);
+					corp.buyMaterial(divisionName, cityName, "Hardware", 10);
+					corp.buyMaterial(divisionName, cityName, "Robots", 10);
+					corp.buyMaterial(divisionName, cityName, "AI Cores", 10);
+					corp.buyMaterial(divisionName, cityName, "Real Estate", 10);
 				};
 			};
-			//ns.tprint("-------------------------------------");
+			ns.print("-------------------------------------");
 		};
 		
 
@@ -604,8 +604,8 @@ export async function main(ns) {
 
 	while (true) {
 		const division = corp.getDivision(divisionName);
-		ns.tprint("-------------------------------------------");
-        ns.tprint(" Corp Division Loop in " + divisionName);
+		ns.print("-------------------------------------------");
+        ns.print(" Corp Division Loop in " + divisionName);
 		if (divisionName == "Tobacco") {
 			if (!ns.scriptRunning(corpScripts.productManager, "home")) {
 				ns.run(corpScripts.productManager, 1, prodBudget); // for product management
@@ -613,7 +613,7 @@ export async function main(ns) {
 		};
 
 		for (const city of division.cities) {
-			ns.tprint(city + " in " + divisionName);
+			ns.print(city + " in " + divisionName);
 			/**
 			 *  Start research script
 			 */
@@ -644,15 +644,15 @@ export async function main(ns) {
 			/**
 			 *  If more employees are needed, or if larger warehouse is needed,
 			 */
-			//ns.tprint("Upgrade city");
+			//ns.print("Upgrade city");
 			if (shouldUpgradeCity(divisionName, city)) {
-				ns.tprint("Upgrade City");
+				ns.print("Upgrade City");
 				await upgradeCity(divisionName, city);
 			};
 			/**
 			 *  If a warehouse exists, then diable smart supply
 			 */
-			ns.tprint("Warehouse");
+			ns.print("Warehouse");
 			if (corp.hasWarehouse(divisionName, city)) {
 				corp.setSmartSupply(divisionName, city, false);
 			} 
@@ -660,33 +660,33 @@ export async function main(ns) {
 			 *  If not, get a warehouse and set the smart supply diabled
 			 */
 			else {
-				ns.tprint("Set smart supply");
+				ns.print("Set smart supply");
 				corp.purchaseWarehouse(divisionName, city);
 				corp.setSmartSupply(divisionName, city, false);
 			}; 
 			/**
 			 *  Set the smart supply enabled
 			 */
-			//ns.tprint("Enalbe smart supply, margetTA enalbed, buy materials");
-			ns.tprint("Enable smart supply");
+			//ns.print("Enalbe smart supply, margetTA enalbed, buy materials");
+			ns.print("Enable smart supply");
 			enableSmartSupply(divisionName, city);
 			/**
 			 *  Set the MargetTA enabled
 			 */
-			ns.tprint("Market TA");
+			ns.print("Market TA");
 			ensureMarketTAEnabled(divisionName, city);
 			/**
 			 *  Buy materials
 			 */
-			ns.tprint("Buy material");
+			ns.print("Buy material");
 			buyMaterials(divisionName, city);
-			//ns.tprint("    ");
+			//ns.print("    ");
 		};
 
 		/**
 		 *  Expand to unowned cities
 		 */
-		ns.tprint("Expand to unowned cities");
+		ns.print("Expand to unowned cities");
 		const unownedCities = getUnownedCities(division);
 		if (unownedCities.length > 0) {
 			const cityToPurchase = unownedCities.pop(); // grab whatever
@@ -698,7 +698,7 @@ export async function main(ns) {
 		/** 
 		 *  For product-generating industries, start marketer script
 		 */
-		ns.tprint("Run marketer script");
+		ns.print("Run marketer script");
 		if (divisionName == "Tobacco") {
 			const maxProducts = getMaxProducts(divisionName);
 			if (division.products.length === maxProducts && unownedCities.length === 0) {
