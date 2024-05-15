@@ -194,8 +194,12 @@ export async function main(ns) {
 		 *  If office size is smaller than requested number of employee, recruit more employees
 		 */
 		if (hasInsufficientEmployees(office)) {
+			if (corp.funds > corp.getOfficeSizeUpgradeCost(divisionName, cityName, 3)) {
+				corp.upgradeOfficeSize(divisionName, cityName, 3);
+			};
+		} else {
 			hireEmployees(divisionName, cityName);
-		}
+		};
 		/**
 		 *  If there is no operator, hire more operators
 		 */
@@ -662,7 +666,9 @@ export async function main(ns) {
 			else {
 				ns.print("Set smart supply");
 				corp.purchaseWarehouse(divisionName, city);
-				corp.setSmartSupply(divisionName, city, false);
+				if (corp.hasWarehouse(divisionName, city)) {
+					corp.setSmartSupply(divisionName, city, false);
+				};
 			}; 
 			/**
 			 *  Set the smart supply enabled
@@ -679,7 +685,9 @@ export async function main(ns) {
 			 *  Buy materials
 			 */
 			ns.print("Buy material");
-			buyMaterials(divisionName, city);
+			if (corp.hasWarehouse(divisionName, city)) {
+				buyMaterials(divisionName, city);
+			};
 			//ns.print("    ");
 		};
 
