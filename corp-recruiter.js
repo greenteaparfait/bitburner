@@ -100,14 +100,16 @@ export async function main(ns) {
 		const upgradeCost = corp.getOfficeSizeUpgradeCost(divisionName, cityName, sizeToBuy);
 		while (corp.getCorporation().funds < upgradeCost) {
 			await ns.sleep(1000); // wait until we have enough money
-		}
-        corp.upgradeOfficeSize(divisionName, cityName, sizeToBuy);
-		hireEmployees(reqEmployees);
+		};
+		if (corp.getCorporation().funds >= upgradeCost) {
+        	corp.upgradeOfficeSize(divisionName, cityName, sizeToBuy);
+			hireEmployees(reqEmployees);
+		};
 	}
 
 	if (office.size != reqSize) {
 		await upgradeOffice();
 	}
 
-	await allocateEmployees();
+	//await allocateEmployees();
 }

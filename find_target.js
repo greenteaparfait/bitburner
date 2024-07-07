@@ -128,14 +128,21 @@ export async function main(ns) {
 		var lines = [];
 		for (var node of nodes) {
 			for (var field of Object.keys(node)) {
+				//ns.tprint("field: " + field);
 				var value = node[field];
+				if (value == "plunder") {
+					ns.tprint("Target for plunder: " + node.node);
+					//ns.tprint("Plundering target servers: " + node.node);
+					ns.exec("hacknet-manager-more2.js", "home", 1, 12, "IncreaseMaximumMoney", node.node);
+					ns.exec("hacknet-manager-more2.js", "home", 1, 12, "ReduceMinimumSecurity", node.node);
+				};
 				lines.push(field + ": " + value);
-			}
+			};
 			lines.push("");
-		}
+		};
 		var fileContent = lines.join("\n");
 		await ns.write(filename, fileContent, 'w');
-		ns.alert(fileContent);
+		//ns.alert(fileContent);
 		ns.toast("Wrote targets to " + filename, "info", 3000);
 	}
 	var potentialTargets = getPotentialTargets(ns, compareField);

@@ -130,6 +130,14 @@ export async function main(ns) {
 			ns.hacknet.spendHashes("Sell for Corporation Funds", upgTarget, 1);
 	}
 
+	function exchangeForCorporationResearch(ns) {
+			ns.hacknet.spendHashes("Exchange for Corporation Research", upgTarget, 1);
+	}
+
+	function generateCodingContract(ns) {
+			ns.hacknet.spendHashes("Generate Coding Contract", upgTarget, 1);
+	}
+
 	function findCULevel(ns) {
 			// finds Cheapest Upgrade Level and returns the index of the node
 			var cl = 0;

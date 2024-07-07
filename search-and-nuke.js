@@ -35,7 +35,7 @@ export async function main(ns) {
 		if (targetServ != "NULL PORT DATA") {
 
 			if (!serverList.includes(targetServ) && !targetServ.includes("hacknet-server") 
-			&& !targetServ.includes("pserv")) {
+			&& !targetServ.includes("pserv") && targetServ != "home" && targetServ != "darkweb") {
 
 				serverList.push(targetServ);
 
