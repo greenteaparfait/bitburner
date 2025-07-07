@@ -1,4 +1,6 @@
 /** @param {NS} ns **/
+import { ALL_CITIES, MATERIALS, JOB_TYPE, RESEARCH, CORP_SCRIPTS } from "corp-constants.js";
+
 export async function main(ns) {
   const manager = new CorpManager(ns);
   await manager.init();
@@ -13,8 +15,15 @@ class CorpManager {
     this.ns = ns;
     this.division = "Tobacco";
     this.homeCity = "Sector-12";
-    this.cities = ["Sector-12", "Aevum", "Volhaven", "Chongqing", "New Tokyo", "Ishima"];
+    this.cities = ALL_CITIES;
     this.prodBudgetRatio = 0.3;
+    this.researchGoals = [
+      RESEARCH.lab,
+      RESEARCH.marketTA1,
+      RESEARCH.marketTA2,
+      RESEARCH.capacity1,
+      RESEARCH.capacity2
+    ];
   }
 
   async init() {
@@ -44,12 +53,15 @@ class CorpManager {
     const div = corp.getDivision(this.division);
     for (const city of this.cities) {
       if (!div.cities.includes(city)) {
-        const funds = corp.getCorporation().funds;
-        const cost = corp.getConstants().officeInitialCost;
-        if (funds < cost) break;
+        const officeCost = corp.getConstants().officeInitialCost;
+        const warehouseCost = corp.getConstants().warehouseInitialCost;
+        if (corp.getCorporation().funds < officeCost + warehouseCost || spent + officeCost + warehouseCost > budget) break;
+
         corp.expandCity(this.division, city);
         corp.purchaseWarehouse(this.division, city);
         corp.upgradeOfficeSize(this.division, city, 3);
+        spent += officeCost + warehouseCost;
+
         if (corp.hasUnlock("Smart Supply")) {
           corp.setSmartSupply(this.division, city, true);
         }
@@ -61,6 +73,7 @@ class CorpManager {
     this.manageOffices();
     this.manageWarehouses();
     this.handleProducts();
+    this.handleResearch();
     await this.tryInvestment();
   }
 
@@ -83,25 +96,29 @@ class CorpManager {
         }
       }
 
-      while (office.employees && office.employees.length < 3) {
-        corp.hireEmployee(this.division, city);
+      if (!Array.isArray(office.employees)) continue;
+
+      while (office.employees.length < office.size) {
+        if (!corp.hireEmployee(this.division, city)) break;
         office = corp.getOffice(this.division, city);
+        if (!Array.isArray(office.employees)) break;
       }
 
-      const total = office?.employees?.length || 0;
-      const assignments = corp.getOffice(this.division, city).employeeJobs || {};
-      const assigned = (assignments["Operations"] || 0) + (assignments["Engineer"] || 0) + (assignments["Business"] || 0);
-      const unassigned = total - assigned;
+      const total = office.employees.length;
+      const div = corp.getDivision(this.division);
+      const devStage = div.products.length === 0;
 
-      if (unassigned >= 1) {
-        corp.setAutoJobAssignment(this.division, city, "Operations", 0);
-        corp.setAutoJobAssignment(this.division, city, "Engineer", 0);
-        corp.setAutoJobAssignment(this.division, city, "Business", 0);
+      corp.setAutoJobAssignment(this.division, city, JOB_TYPE.operations, 0);
+      corp.setAutoJobAssignment(this.division, city, JOB_TYPE.engineer, 0);
+      corp.setAutoJobAssignment(this.division, city, JOB_TYPE.business, 0);
 
+      if (devStage) {
+        corp.setAutoJobAssignment(this.division, city, JOB_TYPE.engineer, total);
+      } else {
         const perRole = Math.floor(total / 3);
-        corp.setAutoJobAssignment(this.division, city, "Operations", perRole);
-        corp.setAutoJobAssignment(this.division, city, "Engineer", perRole);
-        corp.setAutoJobAssignment(this.division, city, "Business", total - 2 * perRole);
+        corp.setAutoJobAssignment(this.division, city, JOB_TYPE.operations, perRole);
+        corp.setAutoJobAssignment(this.division, city, JOB_TYPE.engineer, perRole);
+        corp.setAutoJobAssignment(this.division, city, JOB_TYPE.business, total - 2 * perRole);
       }
     }
   }
@@ -126,14 +143,17 @@ class CorpManager {
     const div = corp.getDivision(this.division);
     const funds = corp.getCorporation().funds;
     const budget = funds * this.prodBudgetRatio;
-    const max = 3 + (corp.hasResearched(this.division, "uPgrade: Capacity.I") ? 1 : 0) + (corp.hasResearched(this.division, "uPgrade: Capacity.II") ? 1 : 0);
+    const max = 3 + (corp.hasResearched(this.division, RESEARCH.capacity1) ? 1 : 0) + (corp.hasResearched(this.division, RESEARCH.capacity2) ? 1 : 0);
 
     for (const city of this.cities) {
       if (!div.cities.includes(city)) continue;
       for (const productName of div.products) {
+        const prod = corp.getProduct(this.division, city, productName);
         corp.sellProduct(this.division, city, productName, "MAX", "MP", true);
-        if (corp.hasResearched(this.division, "Market-TA.I")) corp.setProductMarketTA1(this.division, productName, true);
-        if (corp.hasResearched(this.division, "Market-TA.II")) corp.setProductMarketTA2(this.division, productName, true);
+        if (prod.developmentProgress === 100) {
+          if (corp.hasResearched(this.division, RESEARCH.marketTA1)) corp.setProductMarketTA1(this.division, productName, true);
+          if (corp.hasResearched(this.division, RESEARCH.marketTA2)) corp.setProductMarketTA2(this.division, productName, true);
+        }
       }
     }
 
@@ -157,17 +177,31 @@ class CorpManager {
     }
   }
 
+  handleResearch() {
+    const corp = this.ns.corporation;
+    const div = corp.getDivision(this.division);
+    for (const research of this.researchGoals) {
+      if (!corp.hasResearched(this.division, research)) {
+        const cost = corp.getResearchCost(this.division, research);
+        if (div.researchPoints >= cost) {
+          corp.research(this.division, research);
+          this.ns.print(`[INFO] Researched: ${research}`);
+        }
+      }
+    }
+  }
+
   async tryInvestment() {
     const corp = this.ns.corporation;
     const div = corp.getDivision(this.division);
-    if (corp.numShares !== corp.totalShares || div.products.length < 2) return;
+    if (corp.numShares !== corp.totalShares || div.products.length < 2 || corp.getCorporation().public) return;
 
     for (const p of div.products) corp.sellProduct(this.division, this.homeCity, p, "0", "MP", true);
     for (const city of this.cities) {
       if (!div.cities.includes(city)) continue;
       const office = corp.getOffice(this.division, city);
       const count = office && Array.isArray(office.employees) ? office.employees.length : 0;
-      corp.setAutoJobAssignment(this.division, city, "Operations", count);
+      corp.setAutoJobAssignment(this.division, city, JOB_TYPE.operations, count);
     }
 
     while (!this.cities.every(c => {
@@ -183,7 +217,7 @@ class CorpManager {
       if (!div.cities.includes(city)) continue;
       const office = corp.getOffice(this.division, city);
       const size = office && Array.isArray(office.employees) ? office.employees.length : 0;
-      corp.setAutoJobAssignment(this.division, city, "Business", size);
+      corp.setAutoJobAssignment(this.division, city, JOB_TYPE.business, size);
     }
     for (const p of div.products) corp.sellProduct(this.division, this.homeCity, p, "MAX", "MP", true);
 
